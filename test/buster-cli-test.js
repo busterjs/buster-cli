@@ -24,6 +24,12 @@ buster.testCase("buster-cli", {
         assert(busterEventedLogger.isPrototypeOf(this.cli.logger));
     },
 
+    "should run without callback": function () {
+        mockLogger(this);
+        this.cli.run(["--help"]);
+        assert(true);
+    },
+
     "generic help output": {
         setUp: function () {
             mockLogger(this);
