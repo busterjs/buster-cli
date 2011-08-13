@@ -1,4 +1,5 @@
 var buster = require("buster");
+var busterEventedLogger = require("buster-evented-logger")
 var assert = buster.assert;
 var refute = buster.refute;
 var busterCli = require("./../lib/buster-cli");
@@ -20,7 +21,7 @@ buster.testCase("buster-cli", {
     },
 
     "should have logger": function () {
-        assert(stdioLogger.isPrototypeOf(this.cli.logger));
+        assert(busterEventedLogger.isPrototypeOf(this.cli.logger));
     },
 
     "generic help output": {
