@@ -272,6 +272,29 @@ buster.testCase("buster-cli", {
         }
     },
 
+    "operand": {
+        setUp: function () {
+            mockLogger(this);
+            this.fooOpd = this.cli.opd("Foo", "Does a foo.");
+        },
+
+        "should be listed in --help output": function (done) {
+            var self = this;
+            this.cli.run(["--help"], function () {
+                assert.match(self.stdout, /Foo +: Does a foo/);
+                done();
+            });
+        },
+
+        "should get value assigned": function (done) {
+            var self = this;
+            this.cli.run(["some value"], function () {
+                assert.equals(self.fooOpd.value(), "some value");
+                done();
+            });
+        }
+    },
+
 
     "should call onRun when there are no errors": function (done) {
         this.cli.onRun = function () {
