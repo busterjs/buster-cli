@@ -149,8 +149,6 @@ buster.testCase("buster-cli", {
         }
     },
 
-
-
     "option restricted to list of values": {
         setUp: function () {
             cliHelper.mockLogger(this);
@@ -285,7 +283,6 @@ buster.testCase("buster-cli", {
         }
     },
 
-
     "should call onRun when there are no errors": function (done) {
         this.cli.onRun = function () {
             assert(true);
@@ -305,5 +302,26 @@ buster.testCase("buster-cli", {
             refute(self.cli.onRun.called);
             done();
         });
+    },
+
+    "panicing": {
+        setUp: function () {
+            cliHelper.mockLogger(this);
+            this.stub(process, "exit");
+        },
+
+        "should logg to stderr": function (done) {
+            var self = this;
+
+            this.cli.onRun = function () {
+                this.err("Uh-oh! Trouble!");
+            };
+
+            this.cli.run([], function () {
+                assert.equals(self.stdout, "");
+                assert.match(self.stderr, "Uh-oh! Trouble!");
+                done();
+            });
+        }
     }
 });
