@@ -120,7 +120,7 @@ buster.testCase("buster-cli", {
         "should print error message with --help noneexistingtopic": function (done) {
             var self = this;
             this.cli.run(["--help", "doesnotexist"], function () {
-                assert.equals(self.stdout, "No such help topic 'doesnotexist'. "
+                assert.equals(self.stderr, "No such help topic 'doesnotexist'. "
                               + "Try without a specific help topic, or one of: topic,other.\n");
                 done();
             });
