@@ -2,18 +2,8 @@ var buster = require("buster");
 var busterEventedLogger = require("buster-evented-logger")
 var assert = buster.assert;
 var refute = buster.refute;
-var busterCli = require("./../lib/buster-cli");
-var stdioLogger = require("./../lib/stdio-logger");
-
-function mockLogger(context) {
-    context.stdout = "";
-    context.stderr = "";
-    var j = Array.prototype.join;
-    context.cli.logger = stdioLogger.create(
-        {puts: function () { context.stdout += j.call(arguments, " ") + "\n"; }},
-        {puts: function () { context.stderr += j.call(arguments, " ") + "\n"; }}
-    )
-}
+var busterCli = require("../lib/buster-cli");
+var cliHelper = require("../lib/test-helper");
 
 buster.testCase("buster-cli", {
     setUp: function () {
@@ -25,14 +15,14 @@ buster.testCase("buster-cli", {
     },
 
     "should run without callback": function () {
-        mockLogger(this);
+        cliHelper.mockLogger(this);
         this.cli.run(["--help"]);
         assert(true);
     },
 
     "generic help output": {
         setUp: function () {
-            mockLogger(this);
+            cliHelper.mockLogger(this);
         },
 
         "should include mission statement": function (done) {
@@ -91,7 +81,7 @@ buster.testCase("buster-cli", {
 
     "test calls 'loadOptions' once if present": function (done) {
         var self = this;
-        mockLogger(this);
+        cliHelper.mockLogger(this);
         this.cli.loadOptions = this.spy();
 
         this.cli.run(["--help"], function () {
@@ -104,7 +94,7 @@ buster.testCase("buster-cli", {
 
     "help topics": {
         setUp: function () {
-            mockLogger(this);
+            cliHelper.mockLogger(this);
             this.cli.helpTopics = {
                 "topic": "This is the text for the topic.",
                 "other": "Another topic"
@@ -163,7 +153,7 @@ buster.testCase("buster-cli", {
 
     "option restricted to list of values": {
         setUp: function () {
-            mockLogger(this);
+            cliHelper.mockLogger(this);
             this.aaaOpt = this.cli.opt("-a", "--aaa", "Aaaaa!", {
                 values: ["foo", "bar", "baz"]
             });
@@ -198,7 +188,7 @@ buster.testCase("buster-cli", {
 
     "option with default value": {
         setUp: function () {
-            mockLogger(this);
+            cliHelper.mockLogger(this);
             this.aaaOpt = this.cli.opt("-f", "--ffff", "Fffffuuu", {
                 defaultValue: "DRM"
             });
@@ -240,7 +230,7 @@ buster.testCase("buster-cli", {
 
     "option with value": {
         setUp: function () {
-            mockLogger(this);
+            cliHelper.mockLogger(this);
             this.someOpt = this.cli.opt("-s", "--ss", "A creeper.", {
                 hasValue: true
             });
@@ -257,7 +247,7 @@ buster.testCase("buster-cli", {
 
     "option with validator": {
         setUp: function () {
-            mockLogger(this);
+            cliHelper.mockLogger(this);
             this.anOpt = this.cli.opt("-c", "--character", "The character.", {
                 validators: {"required": "Here's a custom error msg."}
             });
@@ -274,7 +264,7 @@ buster.testCase("buster-cli", {
 
     "operand": {
         setUp: function () {
-            mockLogger(this);
+            cliHelper.mockLogger(this);
             this.fooOpd = this.cli.opd("Foo", "Does a foo.");
         },
 
@@ -307,7 +297,7 @@ buster.testCase("buster-cli", {
 
     "should not call onRun when there are errors": function (done) {
         var self = this;
-        mockLogger(this);
+        cliHelper.mockLogger(this);
         this.cli.onRun = this.spy();
         var someOpt = this.cli.opt("-a", "--aa", "Aaaaa");
         someOpt.addValidator(function () { return "An error."; });
