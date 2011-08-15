@@ -50,8 +50,8 @@ buster.testCase("buster-cli", {
             var portOpt = this.cli.opt("-p", "--port", "Help text is here.");
 
             this.cli.run(["--help"], function () {
-                assert.match(self.stdout, self.cli.helpOpt.signature + ": Shows this message.");
-                assert.match(self.stdout, portOpt.signature + ": Help text is here.");
+                assert.match(self.stdout, "-h/--help: Shows this message.");
+                assert.match(self.stderr, "-h/--help: Help text is here.");
                 done();
             });
         }
