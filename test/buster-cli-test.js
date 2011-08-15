@@ -7,7 +7,7 @@ var cliHelper = require("../lib/test-helper");
 
 buster.testCase("buster-cli", {
     setUp: function () {
-        this.cli = Object.create(busterCli);
+        this.cli = busterCli.create();
     },
 
     "should have logger": function () {
