@@ -323,5 +323,55 @@ buster.testCase("buster-cli", {
                 done();
             });
         }
+    },
+
+    "configuration": {
+        setUp: function () {
+            cliHelper.cdFixtures();
+            cliHelper.mockLogger(this);
+            this.cli.addConfigOption();
+        },
+
+        tearDown: cliHelper.clearFixtures,
+
+        "should fail if config does not exist": function (done) {
+            this.cli.run(["-c", "file.js"], function () {
+                assert.match(this.stderr, "-c/--config: file.js is not a file");
+                done();
+            }.bind(this));
+        },
+
+        "should fail if config is a directory": function (done) {
+            cliHelper.mkdir("buster");
+
+            this.cli.run(["-c", "buster"], function () {
+                assert.match(this.stderr, "-c/--config: buster is not a file");
+                done();
+            }.bind(this));
+        },
+
+        "should fail if default config does not exist": function (done) {
+            this.cli.run([], function () {
+                this.cli.onConfig(function (err) {
+                    assert.match(err.message,
+                                 "-c/--config not provided, and none of\n" +
+                                 "[buster.js, test/buster.js, spec/buster.js] exists");
+                    done();
+                });
+            }.bind(this));
+        },
+
+        "should fail if config contains errors": function (done) {
+            cliHelper.writeFile("buster2.js", "modul.exports");
+
+            this.cli.run(["-c", "buster2.js"], function () {
+                this.cli.onConfig(function (err) {
+                    assert.match(err.message, "Error loading configuration buster2.js");
+                    assert.match(err.message, "modul is not defined");
+                    assert.match(err.stack, /\d+:\d+/);
+                    done();
+                });
+            }.bind(this));
+        }
     }
 });

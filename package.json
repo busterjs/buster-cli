@@ -21,6 +21,8 @@
     "dependencies": {
         "buster-args": "*",
         "buster-terminal": "*",
-        "buster-evented-logger": "*"
+        "buster-evented-logger": "*",
+        "buster-configuration": "*",
+        "rimraf": "~1"
     }
 }
