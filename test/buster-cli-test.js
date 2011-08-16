@@ -409,6 +409,42 @@ buster.testCase("buster-cli", {
                     this.cli.onConfig(spy);
                 }.bind(this));
             }
+        },
+
+        "config environments": {
+            setUp: function () {
+                cliHelper.writeFile("buster.js", "module.exports = " + JSON.stringify({
+                    "Node tests": { environment: "node" },
+                    "Browser tests": { environment: "browser" }
+                }));
+            },
+
+            "should only yield config for provided environment": function (done) {
+                this.cli.run(["-e", "node"], function () {
+                    var spy = this.spy(function () {
+                        setTimeout(function () {
+                            assert.calledOnce(spy);
+                            assert.equals(spy.args[0][1].description, "Node tests");
+                            done();
+                        }, 5);
+                    });
+
+                    this.cli.onConfig(spy);
+                }.bind(this));
+            },
+
+            "should match config environments with --environment": function (done) {
+                this.cli.run(["--environment", "browser"], function () {
+                    var spy = this.spy(function () {
+                        setTimeout(function () {
+                            assert.equals(spy.args[0][1].description, "Browser tests");
+                            done();
+                        }, 5);
+                    });
+
+                    this.cli.onConfig(spy);
+                }.bind(this));
+            }
         }
     }
 });
