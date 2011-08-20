@@ -50,8 +50,93 @@ buster.testCase("buster-cli", {
             var portOpt = this.cli.opt("-p", "--port", "Help text is here.");
 
             this.cli.run(["--help"], function () {
-                assert.match(self.stdout, "-h/--help: Show this message.");
-                assert.match(self.stdout, "-p/--port: Help text is here.");
+                assert.match(self.stdout, /-h\/--help \s*Show this message\./);
+                assert.match(self.stdout, /-p\/--port \s*Help text is here\./);
+                done();
+            });
+        }
+    },
+
+    "log levels": {
+        setUp: function () {
+            cliHelper.mockLogger(this);
+        },
+
+        "should set to log by default": function (done) {
+            this.cli.onRun = function () {
+                this.logger.info("Yo man");
+                this.logger.log("Hey");
+            };
+
+            cliHelper.run(this, [], function () {
+                refute.stdout("Yo man");
+                assert.stdout("Hey");
+                done();
+            });
+        },
+
+        "should set to info with --log-level": function (done) {
+            this.cli.onRun = function () {
+                this.logger.info("Yo man");
+                this.logger.log("Hey");
+            };
+
+            cliHelper.run(this, ["--log-level", "info"], function () {
+                assert.stdout("Yo man");
+                done();
+            });
+        },
+
+        "should include --log-level in help output": function (done) {
+            cliHelper.run(this, ["-h"], function () {
+                assert.stdout("-l/--log-level");
+                assert.stdout("Set logging level");
+                done();
+            });
+        },
+
+        "should fail if providing -l without argument": function (done) {
+            cliHelper.run(this, ["-l"], function () {
+                assert.stderr("No value specified");
+                done();
+            });
+        },
+
+        "should fail if providing illegal logging level": function (done) {
+            cliHelper.run(this, ["-l", "dubious"], function () {
+                assert.stderr("one of [error, warn, log, info, debug], got dubious");
+                done();
+            });
+        },
+
+        "should set to info with -v": function (done) {
+            this.cli.onRun = function () {
+                this.logger.debug("Yo man");
+                this.logger.info("Hey");
+            };
+
+            cliHelper.run(this, ["-v"], function () {
+                refute.stdout("Yo man");
+                assert.stdout("Hey");
+                done();
+            });
+        },
+
+        "should set to debug with -vv": function (done) {
+            this.cli.onRun = function () {
+                this.logger.debug("Yo man");
+                this.logger.info("Hey");
+            };
+
+            cliHelper.run(this, ["-vv"], function () {
+                assert.stdout("Yo man");
+                done();
+            });
+        },
+
+        "should fail if setting -v more than twice": function (done) {
+            cliHelper.run(this, ["-vvv"], function () {
+                assert.stderr("-v can only be set two times.");
                 done();
             });
         }
@@ -216,7 +301,7 @@ buster.testCase("buster-cli", {
             });
         },
 
-        "// should fail with no value": function (done) {
+        " should fail with no value": function (done) {
             // Not failing. Probably a flaw in buster-args.
             var self = this;
             this.cli.run(["-f"], function () {
@@ -269,7 +354,7 @@ buster.testCase("buster-cli", {
         "should be listed in --help output": function (done) {
             var self = this;
             this.cli.run(["--help"], function () {
-                assert.match(self.stdout, /Foo +: Does a foo/);
+                assert.match(self.stdout, /Foo +   Does a foo/);
                 done();
             });
         },
