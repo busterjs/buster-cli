@@ -253,7 +253,7 @@ buster.testCase("buster-cli", {
         "should get value set when value passed to it": function (done) {
             var self = this;
             this.cli.run(["-a", "bar"], function () {
-                assert.equals(self.aaaOpt.value(), "bar");
+                assert.equals(self.aaaOpt.value, "bar");
                 done();
             });
         },
@@ -288,7 +288,7 @@ buster.testCase("buster-cli", {
         "should have default value": function (done) {
             var self = this;
             this.cli.run([], function () {
-                assert.equals(self.aaaOpt.value(), "DRM");
+                assert.equals(self.aaaOpt.value, "DRM");
                 done();
             });
         },
@@ -296,7 +296,7 @@ buster.testCase("buster-cli", {
         "should provide overridden value": function (done) {
             var self = this;
             this.cli.run(["-f", "gaming consoles"], function () {
-                assert.equals(self.aaaOpt.value(), "gaming consoles");
+                assert.equals(self.aaaOpt.value, "gaming consoles");
                 done();
             });
         },
@@ -322,7 +322,7 @@ buster.testCase("buster-cli", {
         "should get value assigned": function (done) {
             var self = this;
             this.cli.run(["-s", "ssssssBOOOOOM!"], function () {
-                assert.equals(self.someOpt.value(), "ssssssBOOOOOM!");
+                assert.equals(self.someOpt.value, "ssssssBOOOOOM!");
                 done();
             });
         }
@@ -362,7 +362,7 @@ buster.testCase("buster-cli", {
         "should get value assigned": function (done) {
             var self = this;
             this.cli.run(["some value"], function () {
-                assert.equals(self.fooOpd.value(), "some value");
+                assert.equals(self.fooOpd.value, "some value");
                 done();
             });
         }
@@ -420,7 +420,7 @@ buster.testCase("buster-cli", {
         tearDown: cliHelper.clearFixtures,
 
         "should fail if config does not exist": function (done) {
-            this.cli.run(["-c", "file.js"], function () {
+            this.cli.run(["-c", "file.js"], function () {                
                 assert.match(this.stderr, "-c/--config: file.js is not a file");
                 done();
             }.bind(this));
