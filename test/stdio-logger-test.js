@@ -109,15 +109,26 @@ buster.testCase("stdio logger", {
         assert.equals(this.stderr, "Watch out!");
     },
 
-    "logger as stream": {
+    "as stream": {
         "should return a stream that logs at level 'log'": function () {
             var logStream = this.logger.streamForLevel("log");
             var infoStream = this.logger.streamForLevel("info");
 
+            this.logger.level = "log";
             logStream.write("Hey");
             infoStream.write("Yo");
 
             assert.equals(this.stdout, "Hey");
+        },
+
+        "should respond to changes in level": function () {
+            var logStream = this.logger.streamForLevel("log");
+
+            logStream.write("Before");
+            this.logger.level = "warn";
+            logStream.write("After");
+
+            assert.equals(this.stdout, "Before");
         }
     }
 });
