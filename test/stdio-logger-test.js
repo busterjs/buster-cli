@@ -86,5 +86,26 @@ buster.testCase("stdio logger", {
             assert.equals(this.stdout, "Hey\n");
             assert.equals(this.stderr, "Game over\n");
         }
+    },
+
+    "should print inline message without line-break": function () {
+        this.logger.inline.l("Hey there");
+
+        assert.equals(this.stdout, "Hey there");
+    },
+
+    "should print inline message with long method name": function () {
+        this.logger.inline.debug("Hey there");
+
+        assert.equals(this.stdout, "Hey there");
+    },
+
+    "inline logger should inherit level from logger": function () {
+        this.logger.level = "warn";
+        this.logger.inline.debug("Hey there");
+        this.logger.inline.warn("Watch out!");
+
+        assert.equals(this.stdout, "");
+        assert.equals(this.stderr, "Watch out!");
     }
 });
