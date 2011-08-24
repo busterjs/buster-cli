@@ -382,7 +382,7 @@ buster.testCase("buster-cli", {
         cliHelper.mockLogger(this);
         this.cli.onRun = this.spy();
         var someOpt = this.cli.opt("-a", "--aa", "Aaaaa");
-        someOpt.addValidator(function () { return "An error."; });
+        someOpt.addValidator(function (arg, promise) { promise.reject("An error."); });
         this.cli.run(["-a"], function () {
             refute(self.cli.onRun.called);
             done();
