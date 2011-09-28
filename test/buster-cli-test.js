@@ -420,7 +420,7 @@ buster.testCase("buster-cli", {
         tearDown: cliHelper.clearFixtures,
 
         "should fail if config does not exist": function (done) {
-            this.cli.run(["-c", "file.js"], function () {                
+            this.cli.run(["-c", "file.js"], function () {
                 assert.match(this.stderr, "-c/--config: file.js is not a file");
                 done();
             }.bind(this));
