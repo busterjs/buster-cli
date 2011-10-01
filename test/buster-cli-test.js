@@ -468,11 +468,15 @@ buster.testCase("buster-cli", {
             },
 
             "should only yield config for provided group": function (done) {
+                var self = this;
+
                 this.cli.run(["-g", "Browser tests"], function () {
                     var spy = this.spy(function () {
                         setTimeout(function () {
                             assert.calledOnce(spy);
-                            assert.equals(spy.args[0][1].description, "Browser tests");
+                            var groups = self.cli.config.value;
+                            assert.equals(groups.length, 1);
+                            assert.equals(groups[0].name, "Browser tests");
                             done();
                         }, 5);
                     });
@@ -482,11 +486,15 @@ buster.testCase("buster-cli", {
             },
 
             "should only yield config for fuzzily matched group": function (done) {
+                var self = this;
+
                 this.cli.run(["-g", "browser"], function () {
                     var spy = this.spy(function () {
                         setTimeout(function () {
                             assert.calledOnce(spy);
-                            assert.equals(spy.args[0][1].description, "Browser tests");
+                            var groups = self.cli.config.value;
+                            assert.equals(groups.length, 1);
+                            assert.equals(groups[0].name, "Browser tests");
                             done();
                         }, 5);
                     });
@@ -505,11 +513,14 @@ buster.testCase("buster-cli", {
             },
 
             "should only yield config for provided environment": function (done) {
+                var self = this;
                 this.cli.run(["-e", "node"], function () {
                     var spy = this.spy(function () {
                         setTimeout(function () {
                             assert.calledOnce(spy);
-                            assert.equals(spy.args[0][1].description, "Node tests");
+                            var groups = self.cli.config.value;
+                            assert.equals(groups.length, 1);
+                            assert.equals(groups[0].name, "Node tests");
                             done();
                         }, 5);
                     });
@@ -519,10 +530,14 @@ buster.testCase("buster-cli", {
             },
 
             "should match config environments with --environment": function (done) {
+                var self = this;
+
                 this.cli.run(["--environment", "browser"], function () {
                     var spy = this.spy(function () {
                         setTimeout(function () {
-                            assert.equals(spy.args[0][1].description, "Browser tests");
+                            var groups = self.cli.config.value;
+                            assert.equals(groups.length, 1);
+                            assert.equals(groups[0].name, "Browser tests");
                             done();
                         }, 5);
                     });
