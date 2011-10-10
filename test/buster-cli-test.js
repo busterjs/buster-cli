@@ -164,7 +164,7 @@ buster.testCase("buster-cli", {
         }
     },
 
-    "test calls 'loadOptions' once if present": function (done) {
+    "calls 'loadOptions' once if present": function (done) {
         var self = this;
         cliHelper.mockLogger(this);
         this.cli.loadOptions = this.spy();
@@ -530,6 +530,36 @@ buster.testCase("buster-cli", {
                     this.cli.onConfig(spy);
                 }.bind(this));
             }
+        }
+    },
+
+    "cli customization": {
+        setUp: function () {
+            this.busterOpt = process.env.BUSTER_OPT;
+        },
+
+        tearDown: function () {
+            process.env.BUSTER_OPT = this.busterOpt;
+        },
+
+        "adds command-line options set with environment variable": function () {
+            var stub = this.stub(this.cli.args, "handle");
+            this.cli.environmentVariable = "BUSTER_OPT";
+            process.env.BUSTER_OPT = "--color none -r bddConsole"
+
+            this.cli.run([]);
+
+            assert.calledWith(stub, ["--color", "none", "-r", "bddConsole"]);
+        },
+
+        "does not add command-line options when no environment variable is set":
+        function () {
+            var stub = this.stub(this.cli.args, "handle");
+            process.env.BUSTER_OPT = "--color none -r bddConsole"
+
+            this.cli.run([]);
+
+            assert.calledWith(stub, []);
         }
     }
 });
