@@ -565,7 +565,7 @@ buster.testCase("buster-cli", {
                 var self = this;
                 this.cli.run([], function () {
                     self.cli.onConfig(function (err, groups) {
-                        assert.isNull(err);
+                        refute.defined(err);
                         assert.equals(groups.length, 1);
                         assert.equals(groups[0].environment, "browser");
                         done();
@@ -583,7 +583,7 @@ buster.testCase("buster-cli", {
                 var self = this;
                 this.cli.run([], function () {
                     self.cli.onConfig(function (err, groups) {
-                        assert.isNull(err);
+                        refute.defined(err);
                         assert.equals(groups.length, 1);
                         assert.equals(groups[0].environment, "node");
                         done();
