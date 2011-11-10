@@ -22,7 +22,7 @@
         "buster-args": "~0.2",
         "buster-terminal": "~0.2",
         "buster-stdio-logger": "~0.1",
-        "buster-configuration": "~0.1",
+        "buster-configuration": "~0.2",
         "rimraf": "~1"
     }
 }
