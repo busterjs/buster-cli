@@ -605,17 +605,17 @@ buster.testCase("buster-cli", {
         "adds command-line options set with environment variable": function () {
             var stub = this.stub(this.cli.args, "handle");
             this.cli.environmentVariable = "BUSTER_OPT";
-            process.env.BUSTER_OPT = "--color none -r bddConsole"
+            process.env.BUSTER_OPT = "--color none -r specification"
 
             this.cli.run([]);
 
-            assert.calledWith(stub, ["--color", "none", "-r", "bddConsole"]);
+            assert.calledWith(stub, ["--color", "none", "-r", "specification"]);
         },
 
         "does not add command-line options when no environment variable is set":
         function () {
             var stub = this.stub(this.cli.args, "handle");
-            process.env.BUSTER_OPT = "--color none -r bddConsole"
+            process.env.BUSTER_OPT = "--color none -r specification"
 
             this.cli.run([]);
 
