@@ -579,6 +579,19 @@ buster.testCase("buster-cli", {
                         done();
                     });
                 }.bind(this));
+            },
+
+            "fails if no groups match environment and group": function (done) {
+                this.cli.run(["-e", "node", "-g", "browser"], function () {
+                    this.cli.onConfig(function (err) {
+                        assert(err);
+                        assert.match(err.message, "buster.js contains no configuration groups for environment 'node' that matches 'browser'");
+                        assert.match(err.message, "Try one of");
+                        assert.match(err.message, "Node tests (node)");
+                        assert.match(err.message, "Browser tests (browser)");
+                        done();
+                    });
+                }.bind(this));
             }
         }
     },
