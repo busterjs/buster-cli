@@ -459,6 +459,18 @@ buster.testCase("buster-cli", {
             }.bind(this));
         },
 
+        "fails if configuration has no groups": function (done) {
+            cliHelper.writeFile("buster3.js", "");
+
+            this.cli.run(["-c", "buster3.js"], function () {
+                this.cli.onConfig(function (err) {
+                    assert(err);
+                    assert.match(err.message, "buster3.js contains no configuration");
+                    done();
+                });
+            }.bind(this));
+        },
+
         "config groups": {
             setUp: function () {
                 cliHelper.writeFile("buster.js", "module.exports = " + JSON.stringify({
@@ -500,6 +512,19 @@ buster.testCase("buster-cli", {
 
                     this.cli.onConfig(spy);
                 }.bind(this));
+            },
+
+            "fails if no groups match": function (done) {
+                this.cli.run(["-g", "stuff"], function () {
+                    this.cli.onConfig(function (err) {
+                        assert(err);
+                        assert.match(err.message, "buster.js contains no configuration groups that matches 'stuff'");
+                        assert.match(err.message, "Try one of");
+                        assert.match(err.message, "Browser tests");
+                        assert.match(err.message, "Node tests");
+                        done();
+                    });
+                }.bind(this));
             }
         },
 
@@ -540,6 +565,19 @@ buster.testCase("buster-cli", {
                     });
 
                     this.cli.onConfig(spy);
+                }.bind(this));
+            },
+
+            "fails if no environments match": function (done) {
+                this.cli.run(["-e", "places"], function () {
+                    this.cli.onConfig(function (err) {
+                        assert(err);
+                        assert.match(err.message, "buster.js contains no configuration groups for environment 'places'");
+                        assert.match(err.message, "Try one of");
+                        assert.match(err.message, "browser");
+                        assert.match(err.message, "node");
+                        done();
+                    });
                 }.bind(this));
             }
         }
