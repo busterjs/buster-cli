@@ -419,14 +419,14 @@ buster.testCase("buster-cli", {
 
         tearDown: cliHelper.clearFixtures,
 
-        "should fail if config does not exist": function (done) {
+        "fails if config does not exist": function (done) {
             this.cli.run(["-c", "file.js"], function () {
                 assert.match(this.stderr, "-c/--config: file.js is not a file");
                 done();
             }.bind(this));
         },
 
-        "should fail if config is a directory": function (done) {
+        "fails if config is a directory": function (done) {
             cliHelper.mkdir("buster");
 
             this.cli.run(["-c", "buster"], function () {
@@ -435,7 +435,7 @@ buster.testCase("buster-cli", {
             }.bind(this));
         },
 
-        "should fail if default config does not exist": function (done) {
+        "fails if default config does not exist": function (done) {
             this.cli.run([], function () {
                 this.cli.onConfig(function (err) {
                     assert.match(err.message,
@@ -446,7 +446,7 @@ buster.testCase("buster-cli", {
             }.bind(this));
         },
 
-        "should fail if config contains errors": function (done) {
+        "fails if config contains errors": function (done) {
             cliHelper.writeFile("buster2.js", "modul.exports");
 
             this.cli.run(["-c", "buster2.js"], function () {
