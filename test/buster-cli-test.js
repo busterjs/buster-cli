@@ -438,6 +438,7 @@ buster.testCase("buster-cli", {
         "fails if default config does not exist": function (done) {
             this.cli.run([], function () {
                 this.cli.onConfig(function (err) {
+                    assert(err);
                     assert.match(err.message,
                                  "-c/--config not provided, and none of\n" +
                                  "[buster.js, test/buster.js, spec/buster.js] exists");
@@ -478,6 +479,8 @@ buster.testCase("buster-cli", {
                     "Browser tests": { environment: "browser" }
                 }));
             },
+
+            tearDown: cliHelper.clearFixtures,
 
             "should only yield config for provided group": function (done) {
                 var self = this;
@@ -591,6 +594,51 @@ buster.testCase("buster-cli", {
                         assert.match(err.message, "Browser tests (browser)");
                         done();
                     });
+                }.bind(this));
+            }
+        },
+
+        "config files": {
+            setUp: function () {
+                cliHelper.writeFile("busterc.js", "module.exports = " + JSON.stringify({
+                    "Node tests": {
+                        environment: "node",
+                        sources: ["src1.js"],
+                        tests: ["test1.js", "test2.js"]
+                    }
+                }));
+
+                cliHelper.writeFile("src1.js", "Src #1");
+                cliHelper.writeFile("test1.js", "Test #1");
+            },
+
+            tearDown: cliHelper.clearFixtures,
+
+            "strips unmatched files in tests": function (done) {
+                this.cli.run(["-c", "busterc.js", "--tests", "test1.js"], function () {
+                    this.cli.onConfig(function (err, groups) {
+                        var rs = groups[0].resourceSet;
+                        assert.equals(rs.load.length, 2);
+                        refute.defined(rs.resources["test2.js"]);
+                        done();
+                    }.bind(this));
+                }.bind(this));
+            },
+
+            "// fails on non-existent tests":
+            "Don't know where to do this - the error spawns in the load:tests " +
+                " handler.\nMust keep state to handle properly(?)",
+
+            "resolves relative paths": function (done) {
+                process.chdir("..");
+                this.cli.run(["-c", "fixtures/busterc.js",
+                              "--tests", "fixtures/test1.js"], function () {
+                    this.cli.onConfig(function (err, groups) {
+                        var rs = groups[0].resourceSet;
+                        assert.equals(rs.load.length, 2);
+                        refute.defined(rs.resources["test2.js"]);
+                        done();
+                    }.bind(this));
                 }.bind(this));
             }
         }
