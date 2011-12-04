@@ -417,7 +417,15 @@ buster.testCase("buster-cli", {
             this.cli.addConfigOption();
         },
 
-        tearDown: cliHelper.clearFixtures,
+        tearDown: function (done) {
+            for (var mod in require.cache) {
+                if (/fixtures/.test(mod)) {
+                    delete require.cache[mod];
+                }
+            }
+
+            cliHelper.clearFixtures(done);
+        },
 
         "fails if config does not exist": function (done) {
             this.cli.run(["-c", "file.js"], function () {
@@ -448,11 +456,11 @@ buster.testCase("buster-cli", {
         },
 
         "fails if config contains errors": function (done) {
-            cliHelper.writeFile("buster2.js", "modul.exports");
+            cliHelper.writeFile("buster.js", "modul.exports");
 
-            this.cli.run(["-c", "buster2.js"], function () {
+            this.cli.run(["-c", "buster.js"], function () {
                 this.cli.onConfig(function (err) {
-                    assert.match(err.message, "Error loading configuration buster2.js");
+                    assert.match(err.message, "Error loading configuration buster.js");
                     assert.match(err.message, "modul is not defined");
                     assert.match(err.stack, /\d+:\d+/);
                     done();
@@ -461,15 +469,70 @@ buster.testCase("buster-cli", {
         },
 
         "fails if configuration has no groups": function (done) {
-            cliHelper.writeFile("buster3.js", "");
+            cliHelper.writeFile("buster.js", "");
 
-            this.cli.run(["-c", "buster3.js"], function () {
+            this.cli.run([], function () {
                 this.cli.onConfig(function (err) {
                     assert(err);
-                    assert.match(err.message, "buster3.js contains no configuration");
+                    assert.match(err.message, "buster.js contains no configuration");
                     done();
                 });
             }.bind(this));
+        },
+
+        "smart configuration loading": {
+            setUp: function () {
+                cliHelper.mkdir("somewhere/nested/place");
+                this.assertConfigLoaded = function (done) {
+                    this.cli.run([], function () {
+                        this.cli.onConfig(function (err) {
+                            refute.defined(err);
+                            done();
+                        });
+                    }.bind(this));
+                };
+            },
+
+            tearDown: cliHelper.clearFixtures,
+
+            "with config in root directory": {
+                setUp: function () {
+                    cliHelper.writeFile("buster.js", "module.exports = " +
+                                        JSON.stringify({
+                                            "Node tests": { environment: "node" }
+                                        }));
+                },
+
+                "finds configuration in parent directory": function (done) {
+                    process.chdir("somewhere");
+                    this.assertConfigLoaded(done);
+                },
+
+                "finds configuration three levels down": function (done) {
+                    process.chdir("somewhere/nested/place");
+                    this.assertConfigLoaded(done);
+                }
+            },
+
+            "with config in root/test directory": {
+                setUp: function () {
+                    cliHelper.mkdir("test");
+                    cliHelper.writeFile("test/buster.js", "module.exports = " +
+                                        JSON.stringify({
+                                            "Node tests": { environment: "node" }
+                                        }));
+                },
+
+                "finds configuration in parent directory": function (done) {
+                    process.chdir("somewhere");
+                    this.assertConfigLoaded(done);
+                },
+
+                "finds configuration three levels down": function (done) {
+                    process.chdir("somewhere/nested/place");
+                    this.assertConfigLoaded(done);
+                }
+            }
         },
 
         "config groups": {
@@ -600,7 +663,7 @@ buster.testCase("buster-cli", {
 
         "config files": {
             setUp: function () {
-                cliHelper.writeFile("busterc.js", "module.exports = " + JSON.stringify({
+                cliHelper.writeFile("buster.js", "module.exports = " + JSON.stringify({
                     "Node tests": {
                         environment: "node",
                         sources: ["src1.js"],
@@ -615,7 +678,7 @@ buster.testCase("buster-cli", {
             tearDown: cliHelper.clearFixtures,
 
             "strips unmatched files in tests": function (done) {
-                this.cli.run(["-c", "busterc.js", "--tests", "test1.js"], function () {
+                this.cli.run(["--tests", "test1.js"], function () {
                     this.cli.onConfig(function (err, groups) {
                         var rs = groups[0].resourceSet;
                         assert.equals(rs.load.length, 2);
@@ -631,7 +694,7 @@ buster.testCase("buster-cli", {
 
             "resolves relative paths": function (done) {
                 process.chdir("..");
-                this.cli.run(["-c", "fixtures/busterc.js",
+                this.cli.run(["-c", "fixtures/buster.js",
                               "--tests", "fixtures/test1.js"], function () {
                     this.cli.onConfig(function (err, groups) {
                         var rs = groups[0].resourceSet;
