@@ -688,7 +688,7 @@ buster.testCase("buster-cli", {
                 }.bind(this));
             },
 
-            "// fails on non-existent tests":
+            "fails on non-existent tests":
             "Don't know where to do this - the error spawns in the load:tests " +
                 " handler.\nMust keep state to handle properly(?)",
 
@@ -696,6 +696,18 @@ buster.testCase("buster-cli", {
                 process.chdir("..");
                 this.cli.run(["-c", "fixtures/buster.js",
                               "--tests", "fixtures/test1.js"], function () {
+                    this.cli.onConfig(function (err, groups) {
+                        var rs = groups[0].resourceSet;
+                        assert.equals(rs.load.length, 2);
+                        refute.defined(rs.resources["test2.js"]);
+                        done();
+                    }.bind(this));
+                }.bind(this));
+            },
+
+            "//finds configuration file in directory specified by --tests": function (done) {
+                process.chdir("..");
+                this.cli.run(["--tests", "fixtures/test1.js"], function () {
                     this.cli.onConfig(function (err, groups) {
                         var rs = groups[0].resourceSet;
                         assert.equals(rs.load.length, 2);
