@@ -1,5 +1,5 @@
 var buster = require("buster");
-var busterEventedLogger = require("buster-evented-logger")
+var busterEventedLogger = require("buster-evented-logger");
 var assert = buster.assert;
 var refute = buster.refute;
 var busterCli = require("../lib/buster-cli");
@@ -216,7 +216,7 @@ buster.testCase("buster-cli", {
 
             this.cli.helpTopics = {
                 "topic": "This is the text for the topic."
-            }
+            };
 
             this.cli.run(["--help"], function () {
                 assert.match(self.stdout, "See also --help topic.");
@@ -389,7 +389,7 @@ buster.testCase("buster-cli", {
         });
     },
 
-    "panicing": {
+    "panicking": {
         setUp: function () {
             cliHelper.mockLogger(this);
             this.stub(process, "exit");
@@ -423,7 +423,6 @@ buster.testCase("buster-cli", {
                     delete require.cache[mod];
                 }
             }
-
             cliHelper.clearFixtures(done);
         },
 
@@ -549,17 +548,12 @@ buster.testCase("buster-cli", {
                 var self = this;
 
                 this.cli.run(["-g", "Browser tests"], function () {
-                    var spy = this.spy(function () {
-                        setTimeout(function () {
-                            assert.calledOnce(spy);
-                            var groups = self.cli.config.value;
+                    this.cli.onConfig(function (err, config) {
+                        config.resolveGroups(done(function (err, groups) {
                             assert.equals(groups.length, 1);
                             assert.equals(groups[0].name, "Browser tests");
-                            done();
-                        }, 5);
+                        }));
                     });
-
-                    this.cli.onConfig(spy);
                 }.bind(this));
             },
 
@@ -567,29 +561,23 @@ buster.testCase("buster-cli", {
                 var self = this;
 
                 this.cli.run(["-g", "browser"], function () {
-                    var spy = this.spy(function (err, groups) {
-                        setTimeout(function () {
-                            assert.calledOnce(spy);
+                    this.cli.onConfig(function (err, config) {
+                        config.resolveGroups(done(function (err, groups) {
                             assert.equals(groups.length, 1);
                             assert.equals(groups[0].name, "Browser tests");
-                            done();
-                        }, 5);
+                        }));
                     });
-
-                    this.cli.onConfig(spy);
                 }.bind(this));
             },
 
             "fails if no groups match": function (done) {
                 this.cli.run(["-g", "stuff"], function () {
-                    this.cli.onConfig(function (err) {
-                        assert(err);
+                    this.cli.onConfig(done(function (err, config) {
                         assert.match(err.message, "buster.js contains no configuration groups that matches 'stuff'");
                         assert.match(err.message, "Try one of");
                         assert.match(err.message, "Browser tests");
                         assert.match(err.message, "Node tests");
-                        done();
-                    });
+                    }));
                 }.bind(this));
             }
         },
@@ -605,16 +593,12 @@ buster.testCase("buster-cli", {
             "should only yield config for provided environment": function (done) {
                 var self = this;
                 this.cli.run(["-e", "node"], function () {
-                    var spy = this.spy(function (err, groups) {
-                        setTimeout(function () {
-                            assert.calledOnce(spy);
+                    this.cli.onConfig(function (err, config) {
+                        config.resolveGroups(done(function (err, groups) {
                             assert.equals(groups.length, 1);
                             assert.equals(groups[0].name, "Node tests");
-                            done();
-                        }, 5);
+                        }));
                     });
-
-                    this.cli.onConfig(spy);
                 }.bind(this));
             },
 
@@ -622,41 +606,36 @@ buster.testCase("buster-cli", {
                 var self = this;
 
                 this.cli.run(["--environment", "browser"], function () {
-                    var spy = this.spy(function (err, groups) {
-                        setTimeout(function () {
+                    this.cli.onConfig(function (err, config) {
+                        config.resolveGroups(done(function (err, groups) {
                             assert.equals(groups.length, 1);
                             assert.equals(groups[0].name, "Browser tests");
-                            done();
-                        }, 5);
+                        }));
                     });
-
-                    this.cli.onConfig(spy);
                 }.bind(this));
             },
 
             "fails if no environments match": function (done) {
                 this.cli.run(["-e", "places"], function () {
-                    this.cli.onConfig(function (err) {
+                    this.cli.onConfig(done(function (err, config) {
                         assert(err);
                         assert.match(err.message, "buster.js contains no configuration groups for environment 'places'");
                         assert.match(err.message, "Try one of");
                         assert.match(err.message, "browser");
                         assert.match(err.message, "node");
-                        done();
-                    });
+                    }));
                 }.bind(this));
             },
 
             "fails if no groups match environment and group": function (done) {
                 this.cli.run(["-e", "node", "-g", "browser"], function () {
-                    this.cli.onConfig(function (err) {
+                    this.cli.onConfig(done(function (err) {
                         assert(err);
                         assert.match(err.message, "buster.js contains no configuration groups for environment 'node' that matches 'browser'");
                         assert.match(err.message, "Try one of");
                         assert.match(err.message, "Node tests (node)");
                         assert.match(err.message, "Browser tests (browser)");
-                        done();
-                    });
+                    }));
                 }.bind(this));
             }
         },
@@ -666,25 +645,42 @@ buster.testCase("buster-cli", {
                 cliHelper.writeFile("buster.js", "module.exports = " + JSON.stringify({
                     "Node tests": {
                         environment: "node",
-                        sources: ["src1.js"],
-                        tests: ["test1.js", "test2.js"]
+                        sources: ["src/1.js"],
+                        tests: ["test/**/*.js"]
                     }
                 }));
 
-                cliHelper.writeFile("src1.js", "Src #1");
-                cliHelper.writeFile("test1.js", "Test #1");
+                cliHelper.writeFile("src/1.js", "Src #1");
+                cliHelper.writeFile("test/1.js", "Test #1");
+                cliHelper.writeFile("test/2.js", "Test #2");
+                cliHelper.writeFile("test/other/1.js", "Other test #1");
+                cliHelper.writeFile("test/other/2.js", "Other test #2");
             },
 
             tearDown: cliHelper.clearFixtures,
 
             "strips unmatched files in tests": function (done) {
-                this.cli.run(["--tests", "test1.js"], function () {
-                    this.cli.onConfig(function (err, groups) {
-                        var rs = groups[0].resourceSet;
-                        assert.equals(rs.load.length, 2);
-                        refute.defined(rs.resources["test2.js"]);
-                        done();
-                    }.bind(this));
+                this.cli.run(["--tests", "test/1.js"], function () {
+                    this.cli.onConfig(function (err, config) {
+                        config.resolveGroups(done(function (err, groups) {
+                            var rs = groups[0].resourceSet;
+                            assert.equals(rs.loadPath.paths().length, 2);
+                            refute.defined(rs.get("test2.js"));
+                        }));
+                    });
+                }.bind(this));
+            },
+
+            "matches directories in tests": function (done) {
+                this.cli.run(["--tests", "test/other/**"], function () {
+                    this.cli.onConfig(function (err, config) {
+                        config.resolveGroups(done(function (err, groups) {
+                            var rs = groups[0].resourceSet;
+                            assert.equals(rs.loadPath.paths().length, 3);
+                            assert.defined(rs.get("test/other/1.js"));
+                            refute.defined(rs.get("test/2.js"));
+                        }));
+                    });
                 }.bind(this));
             },
 
@@ -695,25 +691,27 @@ buster.testCase("buster-cli", {
             "resolves relative paths": function (done) {
                 process.chdir("..");
                 this.cli.run(["-c", "fixtures/buster.js",
-                              "--tests", "fixtures/test1.js"], function () {
-                    this.cli.onConfig(function (err, groups) {
-                        var rs = groups[0].resourceSet;
-                        assert.equals(rs.load.length, 2);
-                        refute.defined(rs.resources["test2.js"]);
-                        done();
-                    }.bind(this));
+                              "--tests", "fixtures/test/1.js"], function () {
+                    this.cli.onConfig(function (err, config) {
+                        config.resolveGroups(done(function (err, groups) {
+                            var rs = groups[0].resourceSet;
+                            assert.equals(rs.loadPath.paths().length, 2);
+                            refute.defined(rs.get("test2.js"));
+                        }));
+                    });
                 }.bind(this));
             },
 
             "//finds configuration file in directory specified by --tests": function (done) {
                 process.chdir("..");
-                this.cli.run(["--tests", "fixtures/test1.js"], function () {
-                    this.cli.onConfig(function (err, groups) {
-                        var rs = groups[0].resourceSet;
-                        assert.equals(rs.load.length, 2);
-                        refute.defined(rs.resources["test2.js"]);
-                        done();
-                    }.bind(this));
+                this.cli.run(["--tests", "fixtures/test/1.js"], function () {
+                    this.cli.onConfig(function (err, config) {
+                        config.resolveGroups(done(function (err, groups) {
+                            var rs = groups[0].resourceSet;
+                            assert.equals(rs.loadPath.paths().length, 2);
+                            refute.defined(rs.get("test2.js"));
+                        }));
+                    });
                 }.bind(this));
             }
         }
@@ -738,11 +736,12 @@ buster.testCase("buster-cli", {
             "should only contain browser groups": function (done) {
                 var self = this;
                 this.cli.run([], function () {
-                    self.cli.onConfig(function (err, groups) {
-                        refute.defined(err);
-                        assert.equals(groups.length, 1);
-                        assert.equals(groups[0].environment, "browser");
-                        done();
+                    self.cli.onConfig(function (err, config) {
+                        config.resolveGroups(done(function (err, groups) {
+                            refute.defined(err);
+                            assert.equals(groups.length, 1);
+                            assert.equals(groups[0].environment, "browser");
+                        }));
                     });
                 });
             }
@@ -756,11 +755,12 @@ buster.testCase("buster-cli", {
             "should only contain node groups": function (done) {
                 var self = this;
                 this.cli.run([], function () {
-                    self.cli.onConfig(function (err, groups) {
-                        refute.defined(err);
-                        assert.equals(groups.length, 1);
-                        assert.equals(groups[0].environment, "node");
-                        done();
+                    self.cli.onConfig(function (err, config) {
+                        config.resolveGroups(done(function (err, groups) {
+                            refute.defined(err);
+                            assert.equals(groups.length, 1);
+                            assert.equals(groups[0].environment, "node");
+                        }));
                     });
                 });
             }
@@ -779,7 +779,7 @@ buster.testCase("buster-cli", {
         "adds command-line options set with environment variable": function () {
             var stub = this.stub(this.cli.args, "handle");
             this.cli.environmentVariable = "BUSTER_OPT";
-            process.env.BUSTER_OPT = "--color none -r specification"
+            process.env.BUSTER_OPT = "--color none -r specification";
 
             this.cli.run([]);
 
@@ -789,7 +789,7 @@ buster.testCase("buster-cli", {
         "does not add command-line options when no environment variable is set":
         function () {
             var stub = this.stub(this.cli.args, "handle");
-            process.env.BUSTER_OPT = "--color none -r specification"
+            process.env.BUSTER_OPT = "--color none -r specification";
 
             this.cli.run([]);
 
