@@ -10,11 +10,11 @@ buster.testCase("buster-cli", {
         this.cli = busterCli.create();
     },
 
-    "should have logger": function () {
+    "has logger": function () {
         assert(busterEventedLogger.isPrototypeOf(this.cli.logger));
     },
 
-    "should run without callback": function () {
+    "runs without callback": function () {
         cliHelper.mockLogger(this);
         this.cli.run(["--help"]);
         assert(true);
@@ -25,35 +25,32 @@ buster.testCase("buster-cli", {
             cliHelper.mockLogger(this);
         },
 
-        "should include mission statement": function (done) {
+        "includes mission statement": function (done) {
             var self = this;
             var statement = "A small CLI that only lives in the test suite.";
             this.cli.missionStatement = statement;
-            this.cli.run(["--help"], function () {
+            this.cli.run(["--help"], done(function () {
                 assert.match(self.stdout, statement);
-                done();
-            });
+            }));
         },
 
-        "should include description": function (done) {
+        "includes description": function (done) {
             var self = this;
             var desc = "How about that.";
             this.cli.description = desc;
-            this.cli.run(["--help"], function () {
+            this.cli.run(["--help"], done(function () {
                 assert.match(self.stdout, desc);
-                done();
-            });
+            }));
         },
 
-        "should list help output for all options, including --help": function (done) {
+        "lists help output for all options, including --help": function (done) {
             var self = this;
             var portOpt = this.cli.opt("-p", "--port", "Help text is here.");
 
-            this.cli.run(["--help"], function () {
+            this.cli.run(["--help"], done(function () {
                 assert.match(self.stdout, /-h\/--help \s*Show this message\./);
                 assert.match(self.stdout, /-p\/--port \s*Help text is here\./);
-                done();
-            });
+            }));
         }
     },
 
@@ -62,83 +59,76 @@ buster.testCase("buster-cli", {
             cliHelper.mockLogger(this);
         },
 
-        "should set to log by default": function (done) {
+        "set to log by default": function (done) {
             this.cli.onRun = function () {
                 this.logger.info("Yo man");
                 this.logger.log("Hey");
             };
 
-            cliHelper.run(this, [], function () {
+            cliHelper.run(this, [], done(function () {
                 refute.stdout("Yo man");
                 assert.stdout("Hey");
-                done();
-            });
+            }));
         },
 
-        "should set to info with --log-level": function (done) {
+        "set to info with --log-level": function (done) {
             this.cli.onRun = function () {
                 this.logger.info("Yo man");
                 this.logger.log("Hey");
             };
 
-            cliHelper.run(this, ["--log-level", "info"], function () {
+            cliHelper.run(this, ["--log-level", "info"], done(function () {
                 assert.stdout("Yo man");
-                done();
-            });
+            }));
         },
 
-        "should include --log-level in help output": function (done) {
-            cliHelper.run(this, ["-h"], function () {
+        "include --log-level in help output": function (done) {
+            cliHelper.run(this, ["-h"], done(function () {
                 assert.stdout("-l/--log-level");
                 assert.stdout("Set logging level");
-                done();
-            });
+            }));
         },
 
-        "should fail if providing -l without argument": function (done) {
-            cliHelper.run(this, ["-l"], function () {
+        "fail if providing -l without argument": function (done) {
+            cliHelper.run(this, ["-l"], done(function () {
                 assert.stderr("No value specified");
-                done();
-            });
+            }));
         },
 
-        "should fail if providing illegal logging level": function (done) {
-            cliHelper.run(this, ["-l", "dubious"], function () {
-                assert.stderr("one of [error, warn, log, info, debug], got dubious");
-                done();
-            });
+        "fails if providing illegal logging level": function (done) {
+            cliHelper.run(this, ["-l", "dubious"], done(function () {
+                assert.stderr("one of [error, warn, log, info, debug], " +
+                              "got dubious");
+            }));
         },
-
-        "should set to info with -v": function (done) {
+        
+        "sets to info with -v": function (done) {
             this.cli.onRun = function () {
                 this.logger.debug("Yo man");
                 this.logger.info("Hey");
             };
 
-            cliHelper.run(this, ["-v"], function () {
+            cliHelper.run(this, ["-v"], done(function () {
                 refute.stdout("Yo man");
                 assert.stdout("Hey");
-                done();
-            });
+            }));
         },
 
-        "should set to debug with -vv": function (done) {
+        "sets to debug with -vv": function (done) {
             this.cli.onRun = function () {
                 this.logger.debug("Yo man");
                 this.logger.info("Hey");
             };
 
-            cliHelper.run(this, ["-vv"], function () {
+            cliHelper.run(this, ["-vv"], done(function () {
                 assert.stdout("Yo man");
-                done();
-            });
+            }));
         },
 
-        "should fail if setting -v more than twice": function (done) {
-            cliHelper.run(this, ["-vvv"], function () {
+        "fails if setting -v more than twice": function (done) {
+            cliHelper.run(this, ["-vvv"], done(function () {
                 assert.stderr("-v can only be set two times.");
-                done();
-            });
+            }));
         }
     },
 
@@ -147,34 +137,28 @@ buster.testCase("buster-cli", {
             this.port = this.cli.opt("-p", "--port", "Help text is here.", {});
         },
 
-        "should be addressable by short key": function (done) {
-            var self = this;
-            this.cli.run(["-p"], function () {
-                assert(self.port.isSet);
-                done();
-            });
+        "is addressable by short key": function (done) {
+            this.cli.run(["-p"], done(function () {
+                assert(this.port.isSet);
+            }.bind(this)));
         },
 
-        "should be addressable by long key": function (done) {
-            var self = this;
-            this.cli.run(["--port"], function () {
-                assert(self.port.isSet);
-                done();
-            });
+        "is addressable by long key": function (done) {
+            this.cli.run(["--port"], done(function () {
+                assert(this.port.isSet);
+            }.bind(this)));
         }
     },
 
     "calls 'loadOptions' once if present": function (done) {
-        var self = this;
         cliHelper.mockLogger(this);
         this.cli.loadOptions = this.spy();
 
         this.cli.run(["--help"], function () {
-            self.cli.run(["--help"], function () {
-                assert(self.cli.loadOptions.calledOnce);
-                done();
-            });
-        });
+            this.cli.run(["--help"], done(function () {
+                assert(this.cli.loadOptions.calledOnce);
+            }.bind(this)));
+        }.bind(this));
     },
 
     "help topics": {
@@ -183,54 +167,46 @@ buster.testCase("buster-cli", {
             this.cli.helpTopics = {
                 "topic": "This is the text for the topic.",
                 "other": "Another topic"
-            }
+            };
         },
 
-        "should be listed with the description of --help in the --help output": function (done) {
-            var self = this;
-            this.cli.run(["--help"], function () {
-                assert.match(self.stdout, "See also --help [topic,other].");
-                done();
-            });
+        "is listed with the description of --help": function (done) {
+            this.cli.run(["--help"], done(function () {
+                assert.match(this.stdout, "See also --help [topic,other].");
+            }.bind(this)));
         },
 
-        "should print topic help with --help sometopic": function (done) {
-            var self = this;
-            this.cli.run(["--help", "topic"], function () {
-                assert.equals(self.stdout, "This is the text for the topic.\n");
-                done();
-            });
+        "prints topic help with --help sometopic": function (done) {
+            this.cli.run(["--help", "topic"], done(function () {
+                assert.equals(this.stdout, "This is the text for the topic.\n");
+            }.bind(this)));
         },
 
-        "should print error message with --help noneexistingtopic": function (done) {
-            var self = this;
-            this.cli.run(["--help", "doesnotexist"], function () {
-                assert.equals(self.stderr, "No such help topic 'doesnotexist'. "
-                              + "Try without a specific help topic, or one of: topic,other.\n");
-                done();
-            });
+        "prints error message with --help noneexistingtopic": function (done) {
+            this.cli.run(["--help", "doesnotexist"], done(function () {
+                assert.equals(this.stderr, "No such help topic " +
+                              "'doesnotexist'. Try without a specific help " +
+                              "topic, or one of: topic,other.\n");
+            }.bind(this)));
         },
 
-        "should print topic unwrapped when just one topic": function (done) {
+        "prints topic unwrapped when just one topic": function (done) {
             var self = this;
 
             this.cli.helpTopics = {
                 "topic": "This is the text for the topic."
             };
 
-            this.cli.run(["--help"], function () {
+            this.cli.run(["--help"], done(function () {
                 assert.match(self.stdout, "See also --help topic.");
-                done();
-            });
+            }.bind(this)));
         },
 
-        "should not print any topic information when empty topics object is specified": function (done) {
+        "should not print topic information when no topics": function (done) {
             this.cli.helpTopics = {};
-            var self = this;
-            this.cli.run(["--help"], function () {
-                refute.match(self.stdout, "See also --help [].");
-                done();
-            });
+            this.cli.run(["--help"], done(function () {
+                refute.match(this.stdout, "See also --help [].");
+            }.bind(this)));
         }
     },
 
@@ -242,30 +218,24 @@ buster.testCase("buster-cli", {
             });
         },
 
-        "should list available options in help output": function (done) {
-            var self = this;
-            this.cli.run(["--help"], function () {
-                assert.match(self.stdout, "One of foo, bar, baz.");
-                done();
-            });
+        "lists available options in help output": function (done) {
+            this.cli.run(["--help"], done(function () {
+                assert.match(this.stdout, "One of foo, bar, baz.");
+            }.bind(this)));
         },
 
-        "should get value set when value passed to it": function (done) {
-            var self = this;
-            this.cli.run(["-a", "bar"], function () {
-                assert.equals(self.aaaOpt.value, "bar");
-                done();
-            });
+        "gets value set when value passed to it": function (done) {
+            this.cli.run(["-a", "bar"], done(function () {
+                assert.equals(this.aaaOpt.value, "bar");
+            }.bind(this)));
         },
 
-        "should error when getting a value not in the list": function (done) {
-            var self = this;
-            this.cli.run(["-a", "lolcat"], function () {
+        "errors when getting a value not in the list": function (done) {
+            this.cli.run(["-a", "lolcat"], done(function () {
                 // The actual error message comes from buster-args.
                 // TODO: Find a better way to test the error msg here.
-                refute.equals(self.stderr, "");
-                done();
-            });
+                refute.equals(this.stderr, "");
+            }.bind(this)));
         }
     },
 
@@ -277,12 +247,10 @@ buster.testCase("buster-cli", {
             });
         },
 
-        "should print default value in help text": function (done) {
-            var self = this;
-            this.cli.run(["--help"], function () {
-                assert.match(self.stdout, "Default is DRM.");
-                done();
-            });
+        "prints default value in help text": function (done) {
+            this.cli.run(["--help"], done(function () {
+                assert.match(this.stdout, "Default is DRM.");
+            }.bind(this)));
         },
 
         "should have default value": function (done) {
@@ -354,7 +322,7 @@ buster.testCase("buster-cli", {
         "should be listed in --help output": function (done) {
             var self = this;
             this.cli.run(["--help"], function () {
-                assert.match(self.stdout, /Foo +   Does a foo/);
+                assert.match(self.stdout, /Foo + {3}Does a foo/);
                 done();
             });
         },
@@ -382,7 +350,9 @@ buster.testCase("buster-cli", {
         cliHelper.mockLogger(this);
         this.cli.onRun = this.spy();
         var someOpt = this.cli.opt("-a", "--aa", "Aaaaa");
-        someOpt.addValidator(function (arg, promise) { promise.reject("An error."); });
+        someOpt.addValidator(function (arg, promise) {
+            promise.reject("An error.");
+        });
         this.cli.run(["-a"], function () {
             refute(self.cli.onRun.called);
             done();
@@ -418,7 +388,8 @@ buster.testCase("buster-cli", {
         },
 
         tearDown: function (done) {
-            for (var mod in require.cache) {
+            var mod;
+            for (mod in require.cache) {
                 if (/fixtures/.test(mod)) {
                     delete require.cache[mod];
                 }
@@ -448,7 +419,8 @@ buster.testCase("buster-cli", {
                     assert(err);
                     assert.match(err.message,
                                  "-c/--config not provided, and none of\n" +
-                                 "[buster.js, test/buster.js, spec/buster.js] exists");
+                                 "[buster.js, test/buster.js, spec/buster.js]" +
+                                 " exists");
                     done();
                 });
             }.bind(this));
@@ -459,7 +431,8 @@ buster.testCase("buster-cli", {
 
             this.cli.run(["-c", "buster.js"], function () {
                 this.cli.onConfig(function (err) {
-                    assert.match(err.message, "Error loading configuration buster.js");
+                    assert.match(err.message,
+                                 "Error loading configuration buster.js");
                     assert.match(err.message, "modul is not defined");
                     assert.match(err.stack, /\d+:\d+/);
                     done();
@@ -473,7 +446,8 @@ buster.testCase("buster-cli", {
             this.cli.run([], function () {
                 this.cli.onConfig(function (err) {
                     assert(err);
-                    assert.match(err.message, "buster.js contains no configuration");
+                    assert.match(err.message,
+                                 "buster.js contains no configuration");
                     done();
                 });
             }.bind(this));
@@ -496,10 +470,9 @@ buster.testCase("buster-cli", {
 
             "with config in root directory": {
                 setUp: function () {
+                    var cfg = { environment: "node" };
                     cliHelper.writeFile("buster.js", "module.exports = " +
-                                        JSON.stringify({
-                                            "Node tests": { environment: "node" }
-                                        }));
+                                        JSON.stringify({ "Node tests": cfg }));
                 },
 
                 "finds configuration in parent directory": function (done) {
@@ -515,11 +488,10 @@ buster.testCase("buster-cli", {
 
             "with config in root/test directory": {
                 setUp: function () {
+                    var cfg = { environment: "node" };
                     cliHelper.mkdir("test");
                     cliHelper.writeFile("test/buster.js", "module.exports = " +
-                                        JSON.stringify({
-                                            "Node tests": { environment: "node" }
-                                        }));
+                                        JSON.stringify({ "Node tests": cfg }));
                 },
 
                 "finds configuration in parent directory": function (done) {
@@ -536,10 +508,11 @@ buster.testCase("buster-cli", {
 
         "config groups": {
             setUp: function () {
-                cliHelper.writeFile("buster.js", "module.exports = " + JSON.stringify({
+                var json = JSON.stringify({
                     "Node tests": { environment: "node" },
                     "Browser tests": { environment: "browser" }
-                }));
+                });
+                cliHelper.writeFile("buster.js", "module.exports = " + json);
             },
 
             tearDown: cliHelper.clearFixtures,
@@ -557,7 +530,7 @@ buster.testCase("buster-cli", {
                 }.bind(this));
             },
 
-            "should only yield config for fuzzily matched group": function (done) {
+            "only yields config for fuzzily matched group": function (done) {
                 var self = this;
 
                 this.cli.run(["-g", "browser"], function () {
@@ -573,7 +546,9 @@ buster.testCase("buster-cli", {
             "fails if no groups match": function (done) {
                 this.cli.run(["-g", "stuff"], function () {
                     this.cli.onConfig(done(function (err, config) {
-                        assert.match(err.message, "buster.js contains no configuration groups that matches 'stuff'");
+                        assert.match(err.message,
+                                     "buster.js contains no configuration " +
+                                     "groups that matches 'stuff'");
                         assert.match(err.message, "Try one of");
                         assert.match(err.message, "Browser tests");
                         assert.match(err.message, "Node tests");
@@ -584,13 +559,14 @@ buster.testCase("buster-cli", {
 
         "config environments": {
             setUp: function () {
-                cliHelper.writeFile("buster.js", "module.exports = " + JSON.stringify({
+                var json = JSON.stringify({
                     "Node tests": { environment: "node" },
                     "Browser tests": { environment: "browser" }
-                }));
+                });
+                cliHelper.writeFile("buster.js", "module.exports = " + json);
             },
 
-            "should only yield config for provided environment": function (done) {
+            "only yields config for provided environment": function (done) {
                 var self = this;
                 this.cli.run(["-e", "node"], function () {
                     this.cli.onConfig(function (err, config) {
@@ -602,7 +578,7 @@ buster.testCase("buster-cli", {
                 }.bind(this));
             },
 
-            "should match config environments with --environment": function (done) {
+            "matches config environments with --environment": function (done) {
                 var self = this;
 
                 this.cli.run(["--environment", "browser"], function () {
@@ -619,7 +595,9 @@ buster.testCase("buster-cli", {
                 this.cli.run(["-e", "places"], function () {
                     this.cli.onConfig(done(function (err, config) {
                         assert(err);
-                        assert.match(err.message, "buster.js contains no configuration groups for environment 'places'");
+                        assert.match(err.message,
+                                     "buster.js contains no configuration " +
+                                     "groups for environment 'places'");
                         assert.match(err.message, "Try one of");
                         assert.match(err.message, "browser");
                         assert.match(err.message, "node");
@@ -631,7 +609,10 @@ buster.testCase("buster-cli", {
                 this.cli.run(["-e", "node", "-g", "browser"], function () {
                     this.cli.onConfig(done(function (err) {
                         assert(err);
-                        assert.match(err.message, "buster.js contains no configuration groups for environment 'node' that matches 'browser'");
+                        assert.match(err.message,
+                                     "buster.js contains no configuration " +
+                                     "groups for environment 'node' that " +
+                                     "matches 'browser'");
                         assert.match(err.message, "Try one of");
                         assert.match(err.message, "Node tests (node)");
                         assert.match(err.message, "Browser tests (browser)");
@@ -642,13 +623,14 @@ buster.testCase("buster-cli", {
 
         "config files": {
             setUp: function () {
-                cliHelper.writeFile("buster.js", "module.exports = " + JSON.stringify({
+                var json = JSON.stringify({
                     "Node tests": {
                         environment: "node",
                         sources: ["src/1.js"],
                         tests: ["test/**/*.js"]
                     }
-                }));
+                });
+                cliHelper.writeFile("buster.js", "module.exports = " + json);
 
                 cliHelper.writeFile("src/1.js", "Src #1");
                 cliHelper.writeFile("test/1.js", "Test #1");
@@ -684,9 +666,9 @@ buster.testCase("buster-cli", {
                 }.bind(this));
             },
 
-            "fails on non-existent tests":
-            "Don't know where to do this - the error spawns in the load:tests " +
-                " handler.\nMust keep state to handle properly(?)",
+            "fails on non-existent tests": "Don't know where to do this - " +
+                "the error spawns in the load:tests handler.\nMust keep " +
+                "state to handle properly(?)",
 
             "resolves relative paths": function (done) {
                 process.chdir("..");
@@ -702,7 +684,7 @@ buster.testCase("buster-cli", {
                 }.bind(this));
             },
 
-            "//finds configuration file in directory specified by --tests": function (done) {
+            "//finds config in dir specified by --tests": function (done) {
                 process.chdir("..");
                 this.cli.run(["--tests", "fixtures/test/1.js"], function () {
                     this.cli.onConfig(function (err, config) {
@@ -721,11 +703,11 @@ buster.testCase("buster-cli", {
         setUp: function () {
             cliHelper.cdFixtures();
             cliHelper.mockLogger(this);
-
-            cliHelper.writeFile("buster.js", "module.exports = " + JSON.stringify({
+            var json = JSON.stringify({
                 "Node tests": { environment: "node" },
                 "Browser tests": { environment: "browser" }
-            }));
+            });
+            cliHelper.writeFile("buster.js", "module.exports = " + json);
         },
 
         "set to browser": {
@@ -786,8 +768,7 @@ buster.testCase("buster-cli", {
             assert.calledWith(stub, ["--color", "none", "-r", "specification"]);
         },
 
-        "does not add command-line options when no environment variable is set":
-        function () {
+        "does not add cli options when no env variable is set": function () {
             var stub = this.stub(this.cli.args, "handle");
             process.env.BUSTER_OPT = "--color none -r specification";
 
