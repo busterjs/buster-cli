@@ -1,6 +1,6 @@
 {
     "name": "buster-cli",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "description": "Internal wrapper and util for creating CLIs in the buster project.",
     "author": { "name": "August Lilleaas and Christian Johansen" },
     "contributors": [{
@@ -19,11 +19,11 @@
         "url": "http://gitorious.org/buster/buster-cli/blobs/master/LICENSE"
     },
     "dependencies": {
-        "buster-args": "~0.3",
-        "buster-terminal": "~0.3",
-        "buster-stdio-logger": "~0.2",
-        "buster-configuration": "~0.2",
+        "buster-args": ">=0.3",
+        "buster-terminal": ">=0.3",
+        "buster-stdio-logger": ">=0.2.1",
+        "buster-configuration": ">=0.3",
         "rimraf": "~1",
-        "minimatch": "~0.1.4"
+        "minimatch": "~0.1.5"
     }
 }
