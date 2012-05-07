@@ -704,10 +704,10 @@ buster.testCase("buster-cli", {
                 process.chdir("..");
                 this.cli.run(["--tests", "fixtures/test/1.js"], function () {
                     this.cli.onConfig(function (err, config) {
-                        config.resolveGroups(done(function (err, groups) {
-                            var rs = groups[0].resourceSet;
+                        config.groups[0].resolve().then(done(function (err, group) {
+                            var rs = group.resourceSet;
                             assert.equals(rs.loadPath.paths().length, 2);
-                            refute.defined(rs.get("test2.js"));
+                            refute.defined(group.resourceSet.get("test2.js"));
                         }));
                     });
                 }.bind(this));
