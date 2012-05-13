@@ -294,7 +294,7 @@ buster.testCase("buster-cli", {
     "configuration": {
         setUp: function () {
             cliHelper.cdFixtures();
-            this.cli.addConfigOption("buster");
+            this.cli.addConfigOption("seaman");
         },
 
         tearDown: cliHelper.clearFixtures,
@@ -307,49 +307,26 @@ buster.testCase("buster-cli", {
             }.bind(this));
         },
 
-        "fails if config is a directory": function (done) {
-            cliHelper.mkdir("buster");
-
-            this.cli.parseArgs(["-c", "buster"], function () {
-                this.cli.loadConfig(done(function (err) {
-                    assert.match(err.message, "-c/--config: buster did not match any files");
-                }.bind(this)));
-            }.bind(this));
-        },
-
         "fails if default config does not exist": function (done) {
             this.cli.parseArgs([], function () {
                 this.cli.loadConfig(done(function (err) {
-                    assert(err);
+                    assert.defined(err);
                     assert.match(err.message,
-                                 "-c/--config not provided, and none of\n" +
-                                 "[buster.js, test/buster.js, spec/buster.js]" +
+                                 "-c/--config: No file provided, and none of\n" +
+                                 "[seaman.js, test/seaman.js, spec/seaman.js]" +
                                  " exist");
                 }));
             }.bind(this));
         },
 
-        "fails if config contains errors": function (done) {
-            cliHelper.writeFile("buster.js", "modul.exports");
-
-            this.cli.parseArgs(["-c", "buster.js"], done(function () {
-                this.cli.loadConfig(function (err) {
-                    assert.match(err.message,
-                                 "Error loading configuration buster.js");
-                    assert.match(err.message, "modul is not defined");
-                    assert.match(err.stack, /\d+:\d+/);
-                });
-            }.bind(this)));
-        },
-
         "fails if configuration has no groups": function (done) {
-            cliHelper.writeFile("buster.js", "");
+            cliHelper.writeFile("seaman.js", "");
 
             this.cli.parseArgs([], function () {
                 this.cli.loadConfig(done(function (err) {
                     assert(err);
                     assert.match(err.message,
-                                 "buster.js contains no configuration");
+                                 "seaman.js contains no configuration");
                 }));
             }.bind(this));
         },
@@ -360,12 +337,12 @@ buster.testCase("buster-cli", {
                     "Node tests": { environment: "node" },
                     "Browser tests": { environment: "browser" }
                 });
-                cliHelper.writeFile("buster.js", "module.exports = " + json);
-                cliHelper.writeFile("buster2.js", "module.exports = " + json);
+                cliHelper.writeFile("seaman.js", "module.exports = " + json);
+                cliHelper.writeFile("seaman2.js", "module.exports = " + json);
             },
 
             "loads configuration": function (done) {
-                this.cli.parseArgs(["-c", "buster.js"], function () {
+                this.cli.parseArgs(["-c", "seaman.js"], function () {
                     this.cli.loadConfig(done(function (err, groups) {
                         assert.defined(groups);
                     }));
@@ -373,15 +350,7 @@ buster.testCase("buster-cli", {
             },
 
             "loads multiple configuration files": function (done) {
-                this.cli.parseArgs(["-c", "buster.js,buster2.js"], function () {
-                    this.cli.loadConfig(done(function (err, groups) {
-                        assert.equals(groups.length, 4);
-                    }));
-                }.bind(this));
-            },
-
-            "loads multiple configuration files from glob": function (done) {
-                this.cli.parseArgs(["-c", "buster*"], function () {
+                this.cli.parseArgs(["-c", "seaman.js,seaman2.js"], function () {
                     this.cli.loadConfig(done(function (err, groups) {
                         assert.equals(groups.length, 4);
                     }));
@@ -389,67 +358,15 @@ buster.testCase("buster-cli", {
             },
     
             "fails if one of many configuration files has no groups": function (done) {
-                cliHelper.writeFile("buster3.js", "");
+                cliHelper.writeFile("seaman3.js", "");
 
-                this.cli.parseArgs(["-c", "buster.js,buster3.js"], function () {
+                this.cli.parseArgs(["-c", "seaman.js,seaman3.js"], function () {
                     this.cli.loadConfig(done(function (err) {
                         assert(err);
                         assert.match(err.message,
-                                     "buster3.js contains no configuration");
+                                     "seaman3.js contains no configuration");
                     }));
                 }.bind(this));
-            }
-        },
-
-        "smart configuration loading": {
-            setUp: function () {
-                cliHelper.mkdir("somewhere/nested/place");
-                this.assertConfigLoaded = function (done) {
-                    this.cli.parseArgs([], function () {
-                        this.cli.loadConfig(done(function (err) {
-                            refute.defined(err);
-                        }));
-                    }.bind(this));
-                };
-            },
-
-            tearDown: cliHelper.clearFixtures,
-
-            "with config in root directory": {
-                setUp: function () {
-                    var cfg = { environment: "node" };
-                    cliHelper.writeFile("buster.js", "module.exports = " +
-                                        JSON.stringify({ "Node tests": cfg }));
-                },
-
-                "finds configuration in parent directory": function (done) {
-                    process.chdir("somewhere");
-                    this.assertConfigLoaded(done);
-                },
-
-                "finds configuration three levels down": function (done) {
-                    process.chdir("somewhere/nested/place");
-                    this.assertConfigLoaded(done);
-                }
-            },
-
-            "with config in root/test directory": {
-                setUp: function () {
-                    var cfg = { environment: "node" };
-                    cliHelper.mkdir("test");
-                    cliHelper.writeFile("test/buster.js", "module.exports = " +
-                                        JSON.stringify({ "Node tests": cfg }));
-                },
-
-                "finds configuration in parent directory": function (done) {
-                    process.chdir("somewhere");
-                    this.assertConfigLoaded(done);
-                },
-
-                "finds configuration three levels down": function (done) {
-                    process.chdir("somewhere/nested/place");
-                    this.assertConfigLoaded(done);
-                }
             }
         },
 
@@ -459,7 +376,7 @@ buster.testCase("buster-cli", {
                     "Node tests": { environment: "node" },
                     "Browser tests": { environment: "browser" }
                 });
-                cliHelper.writeFile("buster.js", "module.exports = " + json);
+                cliHelper.writeFile("seaman.js", "module.exports = " + json);
             },
 
             tearDown: cliHelper.clearFixtures,
@@ -486,7 +403,7 @@ buster.testCase("buster-cli", {
                 this.cli.parseArgs(["-g", "stuff"], function () {
                     this.cli.loadConfig(done(function (err, groups) {
                         assert.match(err.message,
-                                     "buster.js contains no configuration " +
+                                     "seaman.js contains no configuration " +
                                      "groups that matches 'stuff'");
                         assert.match(err.message, "Try one of");
                         assert.match(err.message, "Browser tests");
@@ -502,7 +419,7 @@ buster.testCase("buster-cli", {
                     "Node tests": { environment: "node" },
                     "Browser tests": { environment: "browser" }
                 });
-                cliHelper.writeFile("buster.js", "module.exports = " + json);
+                cliHelper.writeFile("seaman.js", "module.exports = " + json);
             },
 
             "only yields config for provided environment": function (done) {
@@ -528,7 +445,7 @@ buster.testCase("buster-cli", {
                     this.cli.loadConfig(done(function (err, groups) {
                         assert(err);
                         assert.match(err.message,
-                                     "buster.js contains no configuration " +
+                                     "seaman.js contains no configuration " +
                                      "groups for environment 'places'");
                         assert.match(err.message, "Try one of");
                         assert.match(err.message, "browser");
@@ -542,7 +459,7 @@ buster.testCase("buster-cli", {
                     this.cli.loadConfig(done(function (err) {
                         assert(err);
                         assert.match(err.message,
-                                     "buster.js contains no configuration " +
+                                     "seaman.js contains no configuration " +
                                      "groups for environment 'node' that " +
                                      "matches 'browser'");
                         assert.match(err.message, "Try one of");
@@ -562,7 +479,7 @@ buster.testCase("buster-cli", {
                         tests: ["test/**/*.js"]
                     }
                 });
-                cliHelper.writeFile("buster.js", "module.exports = " + json);
+                cliHelper.writeFile("seaman.js", "module.exports = " + json);
                 cliHelper.writeFile("src/1.js", "Src #1");
                 cliHelper.writeFile("test/1.js", "Test #1");
                 cliHelper.writeFile("test/2.js", "Test #2");
@@ -596,9 +513,12 @@ buster.testCase("buster-cli", {
             },
 
             "resolves relative paths": function (done) {
+                var cwd = process.cwd();
                 process.chdir("..");
-                this.cli.parseArgs(["-c", "fixtures/buster.js",
-                              "--tests", "fixtures/test/1.js"], function () {
+                var dir = cwd.replace(process.cwd() + "/", "");
+
+                this.cli.parseArgs(["-c", dir + "/seaman.js",
+                              "--tests", dir + "/test/1.js"], function () {
                     this.cli.loadConfig(function (err, groups) {
                         groups[0].resolve().then(done(function (rs) {
                             assert.equals(rs.loadPath.paths().length, 2);
