@@ -18,6 +18,9 @@
         "type": "BSD",
         "url": "http://gitorious.org/buster/buster-cli/blobs/master/LICENSE"
     },
+    "scripts": {
+        "test": "./run-tests"
+    },
     "dependencies": {
         "buster-args": ">=0.3.1",
         "buster-terminal": ">=0.4",
