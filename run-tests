@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+node test/buster-cli-test.js
