@@ -28,5 +28,8 @@
         "buster-configuration": ">=0.4.1",
         "rimraf": "~1",
         "minimatch": "~0.1.5"
+    },
+    "devDependencies": {
+        "buster": "~0.5"
     }
 }
