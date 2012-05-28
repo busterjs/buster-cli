@@ -25,5 +25,8 @@
         "buster-stdio-logger": ">=0.2.2",
         "buster-configuration": ">=0.4.1",
         "rimraf": "~1"
+    },
+    "devDependencies": {
+        "buster": "~0.5"
     }
 }
