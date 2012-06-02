@@ -540,7 +540,7 @@ buster.testCase("buster-cli", {
         },
 
         "adds command-line options set with environment variable": function () {
-            var stub = this.stub(this.cli.args, "handle");
+            var stub = this.stub(this.cli.args, "parse");
             this.cli.environmentVariable = "BUSTER_OPT";
             process.env.BUSTER_OPT = "--color none -r specification";
 
@@ -550,7 +550,7 @@ buster.testCase("buster-cli", {
         },
 
         "does not add cli options when no env variable is set": function () {
-            var stub = this.stub(this.cli.args, "handle");
+            var stub = this.stub(this.cli.args, "parse");
             process.env.BUSTER_OPT = "--color none -r specification";
 
             this.cli.parseArgs([]);
