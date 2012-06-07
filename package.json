@@ -22,12 +22,12 @@
         "test": "./run-tests"
     },
     "dependencies": {
+        "buster-core": "~0.6",
         "buster-args": ">=0.3.1",
         "buster-terminal": ">=0.4",
         "buster-stdio-logger": ">=0.2.2",
         "buster-configuration": ">=0.4.1",
-        "rimraf": "~1",
-        "minimatch": "~0.1.5"
+        "rimraf": "~1"
     },
     "devDependencies": {
         "buster": "~0.5"
