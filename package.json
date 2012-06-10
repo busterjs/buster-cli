@@ -23,7 +23,7 @@
     },
     "dependencies": {
         "buster-core": "~0.6",
-        "buster-args": ">=0.3.1",
+        "posix-argv-parser": "~0.1",
         "buster-terminal": ">=0.4",
         "buster-stdio-logger": ">=0.2.2",
         "buster-configuration": ">=0.4.1",
