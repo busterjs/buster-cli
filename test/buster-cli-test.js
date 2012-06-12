@@ -1,6 +1,7 @@
 var buster = require("buster");
 var busterCli = require("../lib/buster-cli");
 var cliHelper = require("../lib/test-helper");
+var v = busterCli.validators;
 
 buster.testCase("buster-cli", {
     setUp: function () {
@@ -40,7 +41,7 @@ buster.testCase("buster-cli", {
         "fails for -l without argument": function (done) {
             this.cli.parseArgs(["-l"], done(function () {
                 assert.stderr("No value specified");
-            }));
+            }.bind(this)));
         },
 
         "fails if providing illegal logging level": function (done) {
@@ -49,17 +50,18 @@ buster.testCase("buster-cli", {
                               "got dubious");
             }));
         },
-        
-        "is set to info with -v": function (done) {
+
+        "//is set to info with -v": function (done) {
             this.cli.parseArgs(["-v"], done(function () {
                 this.logger.debug("Yo man");
                 this.logger.info("Hey");
+
                 refute.stdout("Yo man");
                 assert.stdout("Hey");
             }.bind(this)));
         },
 
-        "is set to debug with -vv": function (done) {
+        "//is set to debug with -vv": function (done) {
             this.cli.parseArgs(["-vv"], done(function () {
                 this.logger.debug("Yo man");
                 this.logger.info("Hey");
@@ -70,7 +72,7 @@ buster.testCase("buster-cli", {
 
         "fails if setting -v more than twice": function (done) {
             this.cli.parseArgs(["-vvv"], done(function () {
-                assert.stderr("-v/--verbose can only be set 2 times.");
+                assert.stderr("-v/--verbose: can only be set 2 times.");
             }));
         }
     },
@@ -94,7 +96,9 @@ buster.testCase("buster-cli", {
         },
 
         "lists help output for all options, including --help": function (done) {
-            var portOpt = this.cli.opt("-p", "--port", "Help text is here.");
+            var portOpt = this.cli.opt(["-p", "--port"], {
+                description: "Help text is here."
+            });
             this.cli.addHelpOption();
             this.cli.parseArgs(["--help"], done(function () {
                 assert.stdout(/-h\/--help \s*Show this message\./);
@@ -163,22 +167,27 @@ buster.testCase("buster-cli", {
         },
 
         "are addressable by short key": function (done) {
-            var port = this.cli.opt("-p", "--port", "Help text is here.");
-            this.cli.parseArgs(["-p"], done(function () {
-                assert(port.isSet);
+            this.cli.opt(["-p", "--port"], {
+                description: "Help text is here."
+            });
+            this.cli.parseArgs(["-p"], done(function (errors, options) {
+                assert(options["-p"].isSet);
             }));
         },
 
         "is addressable by long key": function (done) {
-            var port = this.cli.opt("-p", "--port", "Help text is here.");
-            this.cli.parseArgs(["--port"], done(function () {
-                assert(port.isSet);
+            this.cli.opt(["-p", "--port"], {
+                description: "Help text is here."
+            });
+            this.cli.parseArgs(["--port"], done(function (errors, options) {
+                assert(options["-p"].isSet);
             }));
         },
 
         "restricted to list of values": {
             setUp: function () {
-                this.aaaOpt = this.cli.opt("-a", "--aaa", "Aaaaa!", {
+                this.cli.opt(["-a", "--aaa"], {
+                    description: "Aaaaa!",
                     values: ["foo", "bar", "baz"]
                 });
             },
@@ -190,8 +199,8 @@ buster.testCase("buster-cli", {
             },
 
             "gets passed value": function (done) {
-                this.cli.parseArgs(["-a", "bar"], done(function () {
-                    assert.equals(this.aaaOpt.value, "bar");
+                this.cli.parseArgs(["-a", "bar"], done(function (errors, options) {
+                    assert.equals(options["-a"].value, "bar");
                 }.bind(this)));
             },
 
@@ -204,7 +213,8 @@ buster.testCase("buster-cli", {
 
         "with default value": {
             setUp: function () {
-                this.aaaOpt = this.cli.opt("-f", "--ffff", "Fffffuuu", {
+                this.aaaOpt = this.cli.opt(["-f", "--ffff"], {
+                    description: "Fffffuuu",
                     defaultValue: "DRM"
                 });
             },
@@ -216,14 +226,14 @@ buster.testCase("buster-cli", {
             },
 
             "has default value": function (done) {
-                this.cli.parseArgs([], done(function () {
-                    assert.equals(this.aaaOpt.value, "DRM");
+                this.cli.parseArgs([], done(function (errors, options) {
+                    assert.equals(options["-f"].value, "DRM");
                 }.bind(this)));
             },
 
             "provides overridden value": function (done) {
-                this.cli.parseArgs(["-f", "gaming consoles"], done(function () {
-                    assert.equals(this.aaaOpt.value, "gaming consoles");
+                this.cli.parseArgs(["-f", "gaming consoles"], done(function (e, options) {
+                    assert.equals(options["-f"].value, "gaming consoles");
                 }.bind(this)));
             },
 
@@ -236,22 +246,24 @@ buster.testCase("buster-cli", {
 
         "with value": {
             setUp: function () {
-                this.someOpt = this.cli.opt("-s", "--ss", "A creeper.", {
+                this.cli.opt(["-s", "--ss"], {
+                    description: "A creeper.",
                     hasValue: true
                 });
             },
 
             "gets value assigned": function (done) {
-                this.cli.parseArgs(["-s", "ssssssBOOOOOM!"], done(function () {
-                    assert.equals(this.someOpt.value, "ssssssBOOOOOM!");
+                this.cli.parseArgs(["-s", "ssssBOOOOOM!"], done(function (e, options) {
+                    assert.equals(options["-s"].value, "ssssBOOOOOM!");
                 }.bind(this)));
             }
         },
 
         "with validator": {
             setUp: function () {
-                this.anOpt = this.cli.opt("-c", "--character", "The character.", {
-                    validators: {"required": "Here's a custom error msg."}
+                this.cli.opt(["-c", "--character"], {
+                    description: "Character.",
+                    validators: [v.required("Here's a custom error msg.")]
                 });
             },
 
@@ -265,8 +277,8 @@ buster.testCase("buster-cli", {
 
     "operand": {
         setUp: function () {
-            this.fooOpd = this.cli.opd("Foo", "Does a foo.");
             this.cli.addHelpOption();
+            this.cli.opd("Foo", { description: "Does a foo." });
         },
 
         "is listed in --help output": function (done) {
@@ -276,8 +288,8 @@ buster.testCase("buster-cli", {
         },
 
         "gets value assigned": function (done) {
-            this.cli.parseArgs(["some value"], done(function () {
-                assert.equals(this.fooOpd.value, "some value");
+            this.cli.parseArgs(["some value"], done(function (errors, options) {
+                assert.equals(options.Foo.value, "some value");
             }.bind(this)));
         }
     },
@@ -300,16 +312,16 @@ buster.testCase("buster-cli", {
         tearDown: cliHelper.clearFixtures,
 
         "fails if config does not exist": function (done) {
-            this.cli.parseArgs(["-c", "file.js"], function () {
-                this.cli.loadConfig(done(function (err) {
+            this.cli.parseArgs(["-c", "file.js"], function (errors, options) {
+                this.cli.loadConfig(options, done(function (err) {
                     assert.match(err.message, "-c/--config: file.js did not match any files");
                 }));
             }.bind(this));
         },
 
         "fails if default config does not exist": function (done) {
-            this.cli.parseArgs([], function () {
-                this.cli.loadConfig(done(function (err) {
+            this.cli.parseArgs([], function (errors, options) {
+                this.cli.loadConfig(options, done(function (err) {
                     assert.defined(err);
                     assert.match(err.message,
                                  "-c/--config: No file provided, and none of\n" +
@@ -322,8 +334,8 @@ buster.testCase("buster-cli", {
         "fails if configuration has no groups": function (done) {
             cliHelper.writeFile("seaman.js", "");
 
-            this.cli.parseArgs([], function () {
-                this.cli.loadConfig(done(function (err) {
+            this.cli.parseArgs([], function (errors, options) {
+                this.cli.loadConfig(options, done(function (err) {
                     assert(err);
                     assert.match(err.message,
                                  "seaman.js contains no configuration");
@@ -342,26 +354,26 @@ buster.testCase("buster-cli", {
             },
 
             "loads configuration": function (done) {
-                this.cli.parseArgs(["-c", "seaman.js"], function () {
-                    this.cli.loadConfig(done(function (err, groups) {
+                this.cli.parseArgs(["-c", "seaman.js"], function (errors, options) {
+                    this.cli.loadConfig(options, done(function (err, groups) {
                         assert.defined(groups);
                     }));
                 }.bind(this));
             },
 
             "loads multiple configuration files": function (done) {
-                this.cli.parseArgs(["-c", "seaman.js,seaman2.js"], function () {
-                    this.cli.loadConfig(done(function (err, groups) {
+                this.cli.parseArgs(["-c", "seaman.js,seaman2.js"], function (e, opts) {
+                    this.cli.loadConfig(opts, done(function (err, groups) {
                         assert.equals(groups.length, 4);
                     }));
                 }.bind(this));
             },
-    
+
             "fails if one of many configuration files has no groups": function (done) {
                 cliHelper.writeFile("seaman3.js", "");
 
-                this.cli.parseArgs(["-c", "seaman.js,seaman3.js"], function () {
-                    this.cli.loadConfig(done(function (err) {
+                this.cli.parseArgs(["-c", "seaman.js,seaman3.js"], function (e, opts) {
+                    this.cli.loadConfig(opts, done(function (err) {
                         assert(err);
                         assert.match(err.message,
                                      "seaman3.js contains no configuration");
@@ -382,8 +394,8 @@ buster.testCase("buster-cli", {
             tearDown: cliHelper.clearFixtures,
 
             "should only yield config for provided group": function (done) {
-                this.cli.parseArgs(["-g", "Browser tests"], function () {
-                    this.cli.loadConfig(done(function (err, groups) {
+                this.cli.parseArgs(["-g", "Browser tests"], function (err, options) {
+                    this.cli.loadConfig(options, done(function (err, groups) {
                         assert.equals(groups.length, 1);
                         assert.equals(groups[0].name, "Browser tests");
                     }));
@@ -391,8 +403,8 @@ buster.testCase("buster-cli", {
             },
 
             "only yields config for fuzzily matched group": function (done) {
-                this.cli.parseArgs(["-g", "browser"], function () {
-                    this.cli.loadConfig(done(function (err, groups) {
+                this.cli.parseArgs(["-g", "browser"], function (errors, options) {
+                    this.cli.loadConfig(options, done(function (err, groups) {
                         assert.equals(groups.length, 1);
                         assert.equals(groups[0].name, "Browser tests");
                     }));
@@ -400,8 +412,8 @@ buster.testCase("buster-cli", {
             },
 
             "fails if no groups match": function (done) {
-                this.cli.parseArgs(["-g", "stuff"], function () {
-                    this.cli.loadConfig(done(function (err, groups) {
+                this.cli.parseArgs(["-g", "stuff"], function (errors, options) {
+                    this.cli.loadConfig(options, done(function (err, groups) {
                         assert.match(err.message,
                                      "seaman.js contains no configuration " +
                                      "groups that matches 'stuff'");
@@ -423,8 +435,8 @@ buster.testCase("buster-cli", {
             },
 
             "only yields config for provided environment": function (done) {
-                this.cli.parseArgs(["-e", "node"], function () {
-                    this.cli.loadConfig(done(function (err, groups) {
+                this.cli.parseArgs(["-e", "node"], function (errors, options) {
+                    this.cli.loadConfig(options, done(function (err, groups) {
                         assert.equals(groups.length, 1);
                         assert.equals(groups[0].name, "Node tests");
                     }));
@@ -432,8 +444,8 @@ buster.testCase("buster-cli", {
             },
 
             "matches config environments with --environment": function (done) {
-                this.cli.parseArgs(["--environment", "browser"], function () {
-                    this.cli.loadConfig(done(function (err, groups) {
+                this.cli.parseArgs(["--environment", "browser"], function (e, opts) {
+                    this.cli.loadConfig(opts, done(function (err, groups) {
                         assert.equals(groups.length, 1);
                         assert.equals(groups[0].name, "Browser tests");
                     }));
@@ -441,8 +453,8 @@ buster.testCase("buster-cli", {
             },
 
             "fails if no environments match": function (done) {
-                this.cli.parseArgs(["-e", "places"], function () {
-                    this.cli.loadConfig(done(function (err, groups) {
+                this.cli.parseArgs(["-e", "places"], function (errors, options) {
+                    this.cli.loadConfig(options, done(function (err, groups) {
                         assert(err);
                         assert.match(err.message,
                                      "seaman.js contains no configuration " +
@@ -455,8 +467,8 @@ buster.testCase("buster-cli", {
             },
 
             "fails if no groups match environment and group": function (done) {
-                this.cli.parseArgs(["-e", "node", "-g", "browser"], function () {
-                    this.cli.loadConfig(done(function (err) {
+                this.cli.parseArgs(["-e", "node", "-g", "browser"], function (e, opt) {
+                    this.cli.loadConfig(opt, done(function (err) {
                         assert(err);
                         assert.match(err.message,
                                      "seaman.js contains no configuration " +
@@ -490,8 +502,8 @@ buster.testCase("buster-cli", {
             tearDown: cliHelper.clearFixtures,
 
             "strips unmatched files in tests": function (done) {
-                this.cli.parseArgs(["--tests", "test/1.js"], function () {
-                    this.cli.loadConfig(function (err, groups) {
+                this.cli.parseArgs(["--tests", "test/1.js"], function (errors, opts) {
+                    this.cli.loadConfig(opts, function (err, groups) {
                         groups[0].resolve().then(done(function (rs) {
                             assert.equals(rs.loadPath.paths().length, 2);
                             refute.defined(rs.get("test2.js"));
@@ -501,8 +513,8 @@ buster.testCase("buster-cli", {
             },
 
             "matches directories in tests": function (done) {
-                this.cli.parseArgs(["--tests", "test/other/**"], function () {
-                    this.cli.loadConfig(function (err, groups) {
+                this.cli.parseArgs(["--tests", "test/other/**"], function (err, opts) {
+                    this.cli.loadConfig(opts, function (err, groups) {
                         groups[0].resolve().then(done(function (rs) {
                             assert.equals(rs.loadPath.paths().length, 3);
                             assert.defined(rs.get("test/other/1.js"));
@@ -517,9 +529,10 @@ buster.testCase("buster-cli", {
                 process.chdir("..");
                 var dir = cwd.replace(process.cwd() + "/", "");
 
-                this.cli.parseArgs(["-c", dir + "/seaman.js",
-                              "--tests", dir + "/test/1.js"], function () {
-                    this.cli.loadConfig(function (err, groups) {
+                var args = ["-c", dir + "/seaman.js",
+                            "--tests", dir + "/test/1.js"];
+                this.cli.parseArgs(args, function (e, opt) {
+                    this.cli.loadConfig(opt, function (err, groups) {
                         groups[0].resolve().then(done(function (rs) {
                             assert.equals(rs.loadPath.paths().length, 2);
                             refute.defined(rs.get("test2.js"));
