@@ -1,6 +1,6 @@
 {
     "name": "buster-cli",
-    "version": "0.4.4",
+    "version": "0.5.0",
     "description": "Internal wrapper and util for creating CLIs in the buster project.",
     "author": { "name": "August Lilleaas and Christian Johansen" },
     "contributors": [{
@@ -22,15 +22,15 @@
         "test": "./run-tests"
     },
     "dependencies": {
-        "buster-core": "~0.6",
-        "posix-argv-parser": "~0.1",
-        "buster-terminal": ">=0.4",
+        "buster-core": ">=0.6.2",
+        "posix-argv-parser": ">=0.4",
+        "buster-terminal": ">=0.4.4",
         "stream-logger": ">=0.3.0",
-        "buster-configuration": ">=0.4.1",
+        "buster-configuration": ">=0.5.0",
         "rimraf": "~1",
         "minimatch": ">=0.2"
     },
     "devDependencies": {
-        "buster": "~0.5"
+        "buster": "*"
     }
 }
