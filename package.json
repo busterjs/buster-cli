@@ -25,7 +25,7 @@
         "buster-core": "~0.6",
         "posix-argv-parser": "~0.1",
         "buster-terminal": ">=0.4",
-        "buster-stdio-logger": ">=0.2.2",
+        "stream-logger": ">=0.3.0",
         "buster-configuration": ">=0.4.1",
         "rimraf": "~1",
         "minimatch": ">=0.2"
