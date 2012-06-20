@@ -24,7 +24,7 @@
     "dependencies": {
         "buster-core": ">=0.6.2",
         "posix-argv-parser": ">=0.4",
-        "buster-terminal": ">=0.4.4",
+        "buster-terminal": ">=0.4.1",
         "stream-logger": ">=0.3.0",
         "buster-configuration": ">=0.5.0",
         "rimraf": "~1",
