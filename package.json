@@ -1,6 +1,6 @@
 {
     "name": "buster-cli",
-    "version": "0.5.2",
+    "version": "0.6.0",
     "description": "Internal wrapper and util for creating CLIs in the buster project.",
     "author": { "name": "August Lilleaas and Christian Johansen" },
     "contributors": [{
@@ -11,26 +11,35 @@
         "name": "August Lilleaas",
         "email": "august@augustl.com",
         "url": "http://augustl.com"
+    }, {
+        "name": "Stein Magnus Jodal",
+        "email": "stein.magnus@jodal.no",
+        "url": "http://jodal.no"
     }],
     "main": "./lib/buster-cli",
-    "repository": "git://gitorious.org/buster/buster-cli",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/busterjs/buster-cli.git"
+    },
     "license": {
         "type": "BSD",
-        "url": "http://gitorious.org/buster/buster-cli/blobs/master/LICENSE"
+        "url": "https://github.com/busterjs/buster-cli/blob/master/LICENSE"
     },
     "scripts": {
         "test": "./run-tests"
     },
     "dependencies": {
-        "buster-core": ">=0.6.2",
+        "bane": "~0.1",
         "posix-argv-parser": ">=0.4",
-        "buster-terminal": ">=0.4.1",
+        "ansi-colorizer": "~0.5.0",
         "stream-logger": ">=0.3.0",
         "buster-configuration": "=0.5.2",
         "rimraf": "~1",
         "minimatch": ">=0.2"
     },
     "devDependencies": {
-        "buster": "*"
+        "referee": "*",
+        "buster-test": "*",
+        "sinon": "~1.4"
     }
 }
