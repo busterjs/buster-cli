@@ -1,16 +1,13 @@
 var referee = require("referee");
 var bt = require("buster-test");
 
-var assertions = 0;
-var count = function () { assertions += 1; };
-referee.on("pass", count);
-referee.on("failure", count);
-
 bt.testRunner.assertionCount = function () {
     return assertions;
 };
 
 bt.testRunner.onCreate(function (runner) {
+    referee.on("pass", runner.assertionPass.bind(runner));
+
     runner.on("suite:end", function (results) {
         if (!results.ok) {
             setTimeout(function () {
