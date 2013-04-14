@@ -1,10 +1,6 @@
 var referee = require("referee");
 var bt = require("buster-test");
 
-bt.testRunner.assertionCount = function () {
-    return assertions;
-};
-
 bt.testRunner.onCreate(function (runner) {
     referee.on("pass", runner.assertionPass.bind(runner));
 
