@@ -356,7 +356,7 @@ buster.testCase("buster-cli", {
             }.bind(this));
         },
 
-        "configuration with --config": {
+        "with --config": {
             setUp: function () {
                 var json = JSON.stringify({
                     "Node tests": { environment: "node" },
@@ -441,6 +441,66 @@ buster.testCase("buster-cli", {
                     }));
                 }.bind(this));
             }
+
+        },
+
+        "config validation": {
+
+            setUp: function () {
+                sinon.stub(this.cli.logger, "warn");
+            },
+
+            tearDown: cliHelper.clearFixtures,
+
+            "warning for groups without environment set": function (done) {
+
+                var json = JSON.stringify({
+                    "Tests1": {},
+                    "Tests2": {},
+                    "Node tests": { environment: "node" },
+                    "Browser tests": { environment: "browser" }
+                });
+                cliHelper.writeFile("seaman.js", "module.exports = " + json);
+
+                this.cli.parseArgs([], function (errors, options) {
+                    this.cli.loadConfig(options, done(function (err, groups) {
+                        assert.equals(this.cli.logger.warn.callCount, 2);
+                        assert.match(this.cli.logger.warn.args[0], "Warning:");
+                        assert.match(this.cli.logger.warn.args[0],
+                            "no environment set for group \"");
+                        assert.match(this.cli.logger.warn.getCall(0).args[0],
+                            "Tests1");
+                        assert.match(this.cli.logger.warn.getCall(1).args[0],
+                            "Tests2");
+                        assert.match(this.cli.logger.warn.args[0],
+                            "\", group will be ignored!");
+                    }.bind(this)));
+                }.bind(this));
+            },
+
+            "no warning for missing environment if extended": function (done) {
+
+                var json = JSON.stringify({
+                    "Tests1": {},
+                    "Tests2": {},
+                    "Node tests": { environment: "node", "extends": "Tests2" },
+                    "Browser tests": { environment: "browser" }
+                });
+                cliHelper.writeFile("seaman.js", "module.exports = " + json);
+
+                this.cli.parseArgs([], function (errors, options) {
+                    this.cli.loadConfig(options, done(function (err, groups) {
+                        assert.equals(this.cli.logger.warn.callCount, 1);
+                        assert.match(this.cli.logger.warn.args[0], "Warning:");
+                        assert.match(this.cli.logger.warn.args[0],
+                            "no environment set for group \"");
+                        assert.match(this.cli.logger.warn.args[0], "Tests1");
+                        assert.match(this.cli.logger.warn.args[0],
+                            "\", group will be ignored!");
+                    }.bind(this)));
+                }.bind(this));
+            }
+
         },
 
         "config environments": {
