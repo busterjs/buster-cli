@@ -1,6 +1,6 @@
 module.exports = {
     paths: [
-        "lib/*.js",
+        "lib/**/*.js",
         "test/*.js"
     ],
     linterOptions: {
