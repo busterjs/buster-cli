@@ -33,11 +33,11 @@
         "test": "node run-tests.js"
     },
     "dependencies": {
-        "bane": "~0.1",
-        "posix-argv-parser": ">=0.4",
-        "ansi-colorizer": "~0.5.0",
-        "stream-logger": ">=0.3.0",
-        "buster-configuration": "=0.5.2",
+        "bane": "~1.0",
+        "posix-argv-parser": "~1.0",
+        "ansi-colorizer": "~1.0",
+        "stream-logger": "~1.0",
+        "buster-configuration": "~0.7",
         "rimraf": "~1",
         "minimatch": ">=0.2"
     },
