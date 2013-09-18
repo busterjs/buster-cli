@@ -4,7 +4,7 @@ var referee = require("referee");
 var assert = referee.assert;
 var refute = referee.refute;
 var busterCli = require("../lib/buster-cli");
-var cliHelper = require("../lib/test-helper");
+var cliHelper = require("./test-helper");
 var v = busterCli.validators;
 
 buster.testCase("buster-cli", {
