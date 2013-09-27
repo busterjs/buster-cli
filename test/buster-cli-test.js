@@ -588,7 +588,8 @@ buster.testCase("buster-cli", {
                     this.cli.loadConfig(opts, function (err, groups) {
                         groups[0].resolve().then(done(function (rs) {
                             assert.equals(rs.loadPath.paths().length, 2);
-                            refute.defined(rs.get("test2.js"));
+                            assert.defined(rs.get("src/1.js"));
+                            assert.defined(rs.get("test/1.js"));
                         }));
                     });
                 }.bind(this));
