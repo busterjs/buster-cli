@@ -83,7 +83,7 @@ module.exports = {
             }
         }
         rmrf(FIXTURES_ROOT, function (err) {
-            if (err) { require("buster").log(err.toString()); }
+            if (err) { console.log(err.toString()); }
             done();
         });
     },
