@@ -6,6 +6,7 @@ var refute = referee.refute;
 var busterCli = require("../lib/buster-cli");
 var cliHelper = require("./test-helper");
 var v = busterCli.validators;
+var path = require("path");
 
 buster.testCase("buster-cli", {
     setUp: function () {
@@ -338,8 +339,11 @@ buster.testCase("buster-cli", {
                     assert.defined(err);
                     assert.match(err.message,
                                  "-c/--config: No file provided, and none of" +
-                                 "\n[seaman.js, test/seaman.js, " +
-                                 "spec/seaman.js] exist");
+                                 "\n[seaman.js, " +
+                                 path.join("test", "seaman.js") +
+                                 ", " +
+                                 path.join("spec", "seaman.js") +
+                                 "] exist");
                 }));
             }.bind(this));
         },
