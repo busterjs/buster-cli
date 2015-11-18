@@ -1,48 +1,55 @@
 {
-    "name": "buster-cli",
-    "version": "0.6.3",
-    "description": "Internal wrapper and util for creating CLIs in the buster project.",
-    "author": { "name": "August Lilleaas and Christian Johansen" },
-    "contributors": [{
-        "name": "Christian Johansen",
-        "email": "christian@cjohansen.no",
-        "url": "http://cjohansen.no"
-    }, {
-        "name": "August Lilleaas",
-        "email": "august@augustl.com",
-        "url": "http://augustl.com"
-    }, {
-        "name": "Daniel Wittner",
-        "email": "d.wittner@gmx.de",
-        "url": "https://github.com/dwittner"
-    }, {
-        "name": "Stein Magnus Jodal",
-        "email": "stein.magnus@jodal.no",
-        "url": "http://jodal.no"
-    }],
-    "license": "BSD-3-Clause",
-    "main": "./lib/buster-cli",
-    "engines": {
-        "node": ">= 4"
+  "name": "buster-cli",
+  "version": "0.7.0",
+  "description": "Internal wrapper and util for creating CLIs in the buster project.",
+  "author": {
+    "name": "August Lilleaas and Christian Johansen"
+  },
+  "contributors": [
+    {
+      "name": "Christian Johansen",
+      "email": "christian@cjohansen.no",
+      "url": "http://cjohansen.no"
     },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/busterjs/buster-cli.git"
+    {
+      "name": "August Lilleaas",
+      "email": "august@augustl.com",
+      "url": "http://augustl.com"
     },
-    "scripts": {
-        "test": "node run-tests.js",
-        "test-debug": "node --debug-brk run-tests.js"
+    {
+      "name": "Daniel Wittner",
+      "email": "d.wittner@gmx.de",
+      "url": "https://github.com/dwittner"
     },
-    "dependencies": {
-        "bane": "1.x",
-        "posix-argv-parser": "2.x",
-        "ansi-colorizer": "1.x",
-        "stream-logger": "1.x",
-        "buster-configuration": "0.7.x",
-        "rimraf": "1.x",
-        "minimatch": "3.x"
-    },
-    "devDependencies": {
-        "buster-node": "0.7.x"
+    {
+      "name": "Stein Magnus Jodal",
+      "email": "stein.magnus@jodal.no",
+      "url": "http://jodal.no"
     }
+  ],
+  "license": "BSD-3-Clause",
+  "main": "./lib/buster-cli",
+  "engines": {
+    "node": ">= 4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/busterjs/buster-cli.git"
+  },
+  "scripts": {
+    "test": "node run-tests.js",
+    "test-debug": "node --debug-brk run-tests.js"
+  },
+  "dependencies": {
+    "bane": "1.x",
+    "posix-argv-parser": "2.x",
+    "ansi-colorizer": "1.x",
+    "stream-logger": "1.x",
+    "buster-configuration": "0.7.x",
+    "rimraf": "1.x",
+    "minimatch": "3.x"
+  },
+  "devDependencies": {
+    "buster-node": "0.7.x"
+  }
 }
