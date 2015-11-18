@@ -1,3 +1,4 @@
 *.log
 fixtures
 node_modules
+.idea

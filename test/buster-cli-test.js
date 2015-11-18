@@ -1,8 +1,6 @@
-var buster = require("buster-test");
-var sinon = require("sinon");
-var referee = require("referee");
-var assert = referee.assert;
-var refute = referee.refute;
+var buster = require("buster-node");
+var assert = buster.referee.assert;
+var refute = buster.referee.refute;
 var busterCli = require("../lib/buster-cli");
 var cliHelper = require("./test-helper");
 var v = busterCli.validators;
@@ -11,7 +9,7 @@ var path = require("path");
 buster.testCase("buster-cli", {
     setUp: function () {
         this.cli = busterCli.create();
-        sinon.stub(this.cli, "exit");
+        this.stub(this.cli, "exit");
         var stdout = this.stdout = cliHelper.writableStream("stdout");
         var stderr = this.stderr = cliHelper.writableStream("stderr");
         this.logger = this.cli.createLogger(this.stdout, this.stderr);
@@ -451,7 +449,7 @@ buster.testCase("buster-cli", {
         "config validation": {
 
             setUp: function () {
-                sinon.stub(this.cli.logger, "warn");
+                this.stub(this.cli.logger, "warn");
             },
 
             tearDown: cliHelper.clearFixtures,
@@ -641,7 +639,7 @@ buster.testCase("buster-cli", {
         },
 
         "adds command-line options set with environment variable": function () {
-            var stub = sinon.stub(this.cli.args, "parse");
+            var stub = this.stub(this.cli.args, "parse");
             this.cli.environmentVariable = "BUSTER_OPT";
             process.env.BUSTER_OPT = "--color none -r specification";
 
@@ -651,7 +649,7 @@ buster.testCase("buster-cli", {
         },
 
         "does not add cli options when no env variable is set": function () {
-            var stub = sinon.stub(this.cli.args, "parse");
+            var stub = this.stub(this.cli.args, "parse");
             process.env.BUSTER_OPT = "--color none -r specification";
 
             this.cli.parseArgs([]);
