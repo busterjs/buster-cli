@@ -1,6 +1,6 @@
 {
   "name": "buster-cli",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Internal wrapper and util for creating CLIs in the buster project.",
   "author": {
     "name": "August Lilleaas and Christian Johansen"
