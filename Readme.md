@@ -7,6 +7,10 @@ Internal wrapper and util for creating CLIs in the buster project
 
 ## Changelog
 
+**0.8.0** (2015-Nov-25)
+
+* updated some dependencies that weren't `npm publish`ed a week ago
+
 **0.7.0** (2015-Nov-19)
 
 * updated dependencies
