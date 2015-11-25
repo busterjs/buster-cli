@@ -45,8 +45,8 @@
     "posix-argv-parser": "2.x",
     "ansi-colorizer": "1.x",
     "stream-logger": "1.x",
-    "buster-configuration": "0.7.x",
-    "rimraf": "1.x",
+    "buster-configuration": "0.8.x",
+    "rimraf": "2.x",
     "minimatch": "3.x"
   },
   "devDependencies": {

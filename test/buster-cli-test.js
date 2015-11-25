@@ -314,11 +314,14 @@ buster.testCase("buster-cli", {
 
     "configuration": {
         setUp: function () {
-            cliHelper.cdFixtures();
+            this.cwd = cliHelper.cdFixtures();
             this.cli.addConfigOption("seaman");
         },
 
-        tearDown: cliHelper.clearFixtures,
+        tearDown: function (done) {
+            process.chdir(this.cwd);
+            cliHelper.clearFixtures(done);
+        },
 
         "fails if config does not exist": function (done) {
             this.cli.parseArgs(["-c", "file.js"], function (errors, options) {

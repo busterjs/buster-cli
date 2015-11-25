@@ -31,25 +31,6 @@ module.exports = {
         return stream;
     },
 
-    mockLogger: function mockLogger(context) {
-        context.stdout = "";
-        context.stderr = "";
-        var cli = context.cli;
-        var level = cli.logger && cli.logger.level;
-
-        cli.logger = streamLogger({
-            write: function () {
-                context.stdout += join.call(arguments, " ");
-            }
-        }, {
-            write: function () {
-                context.stderr += join.call(arguments, " ");
-            }
-        });
-
-        if (level) { cli.logger.level = level; }
-    },
-
     mkdir: function (dir) {
         dir = dir.replace(FIXTURES_ROOT, "").replace(/^\//, "");
         var dirs = [FIXTURES_ROOT].concat(dir.split("/")), tmp = "", i, l;
@@ -71,8 +52,10 @@ module.exports = {
     },
 
     cdFixtures: function () {
+        var cwd = process.cwd();
         this.mkdir("");
         process.chdir(FIXTURES_ROOT);
+        return cwd;
     },
 
     clearFixtures: function (done) {

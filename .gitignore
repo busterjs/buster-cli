@@ -1,4 +1,4 @@
 *.log
-fixtures
+.fixtures
 node_modules
 .idea
